@@ -1,16 +1,15 @@
 import requests
 
-# Local Ollama API endpoint used to send prompts to the LLM
+# Local Ollama API used to send prompts to the LLM
 OLLAMA_URL = "http://localhost:11434/api/generate"
 
-# Model being used for all requests
+# Llama model being used
 MODEL_NAME = "llama3.1:8b"
 
 
 def llama_request(prompt):
 
-    #Sends a prompt to the Ollama API and returns the model's response text.
-
+# Sends a prompt to the Ollama API and returns the model's response text.
 
     response = requests.post(
         OLLAMA_URL,
@@ -30,8 +29,8 @@ def llama_request(prompt):
 
 
 def translate_text(text):
-#Uses the LLM to translate input text into English.
-#The prompt strictly instructs the model to return only the translated sentence.
+# Uses the LLM to translate input text into English.
+# The prompt strictly instructs the model to return only the translated sentence.
 
         
     prompt = f"""
@@ -50,8 +49,8 @@ Text: "{text}"
 
 def extract_data(text):
 
-#Uses the LLM to classify a case note and extract structured compliance data.
-#The model must return a JSON object with incident classification fields.
+# Uses the LLM to classify a case note and extract structured compliance data.
+# The model must return a JSON object with incident classification fields.
 
 
     prompt = f"""
