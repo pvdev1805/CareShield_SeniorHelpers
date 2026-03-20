@@ -1,6 +1,7 @@
 from faster_whisper import WhisperModel
+from backend.app.core.config import settings
 
-model = WhisperModel("base", device="cpu", compute_type="int8")
+model = WhisperModel(settings.whisper_model_size, device=settings.whisper_device, compute_type=settings.whisper_compute_type)
 
 
 def transcribe_audio(audio_file):

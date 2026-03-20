@@ -1,10 +1,11 @@
 import requests
+from backend.app.core.config import settings
 
 # Local Ollama API used to send prompts to the LLM
-OLLAMA_URL = "http://localhost:11434/api/generate"
+OLLAMA_URL = settings.ollama_url
 
 # Llama model being used
-MODEL_NAME = "llama3.1:8b"
+MODEL_NAME = settings.ollama_model
 
 
 def llama_request(prompt):

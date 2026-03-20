@@ -1,10 +1,11 @@
-from whisper_module import transcribe_audio
-from llama_module import translate_text, extract_data
+from backend.app.services.whisper_module import transcribe_audio
+from backend.app.services.llama_module import translate_text, extract_data
+from pathlib import Path
 
+directory = Path(__file__).resolve().parent.parent
+audio_file = directory/"uploads/sample.mp3"
 
 if __name__ == "__main__":
-
-    audio_file = "sample.mp3"
 
     # Transcribe
     original_text, detected_language, confidence = transcribe_audio(audio_file)
