@@ -1,14 +1,4 @@
-#AI
 requests
 faster-whisper
+torch
 ollama
-
-#BACKEND
-fastapi
-uvicorn
-sqlalchemy
-pydantic
-pydantic_settings
-
-#DB
-psycopg

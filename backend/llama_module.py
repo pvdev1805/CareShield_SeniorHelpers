@@ -1,3 +1,4 @@
+# llama_module.py
 
 import requests
 
@@ -11,7 +12,11 @@ def llama_request(prompt):
         json={
             "model": MODEL_NAME,
             "prompt": prompt,
-            "stream": False
+            "stream": False,
+            "options": {
+                "temperature": 0.1,
+                "num_predict": 300
+            }
         }
     )
     return response.json()["response"]
@@ -31,21 +36,18 @@ Text: "{text}"
     return llama_request(prompt)
 
 
-
 def extract_data(text):
     prompt = f"""
 You are a clinical compliance assistant.
 
-Extract the following fields from the suuplied case note and return ONLY valid JSON:
 Return ONLY valid JSON.
 Do not include explanations.
 Do not include markdown.
 Do not include extra text.
-Do not include any notes.
-ALL JSON fields should have an entry.
+ALL JSON fields must be filled.
 
 If there is any injury to the client/participant, the minimum 'severity' category should be medium.
-Any hospitalisation should be classified as 'high' under 'severity' and 'escalation' should be 'yes'.
+Any hospitalisation should be classified as 'high' and 'escalation_required' should be 'yes'.
 
 Required JSON format:
 {{
@@ -56,18 +58,8 @@ Required JSON format:
 }}
 
 Case note:
-\"\"\"{text}\"\"\"
+---START---
+{text}
+---END---
 """
     return llama_request(prompt)
-
-
-
-if __name__ == "__main__":
-    user_input = input("Enter case note: ")
-    translation = translate_text(user_input)
-    structured = extract_data(translation)
-
-    print("\n--- Translation ---")
-    print(translation)
-    print("\n--- JSON Output ---")
-    print(structured)
