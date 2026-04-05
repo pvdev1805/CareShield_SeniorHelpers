@@ -1,73 +1,30 @@
-
-import requests
-
-OLLAMA_URL = "http://localhost:11434/api/generate"
-MODEL_NAME = "llama3.1:8b"
-
-
-def llama_request(prompt):
-    response = requests.post(
-        OLLAMA_URL,
-        json={
-            "model": MODEL_NAME,
-            "prompt": prompt,
-            "stream": False
-        }
-    )
-    return response.json()["response"]
-
-
-def translate_text(text):
-    prompt = f"""
-Translate the following text to English.
-Only return the translated sentence.
-Do not include explanations.
-Do not include markdown.
-Do not include extra text.
-Do not include any notes.
-
-Text: "{text}"
-"""
-    return llama_request(prompt)
-
-
-
-def extract_data(text):
-    prompt = f"""
-You are a clinical compliance assistant.
-
-Extract the following fields from the suuplied case note and return ONLY valid JSON:
-Return ONLY valid JSON.
-Do not include explanations.
-Do not include markdown.
-Do not include extra text.
-Do not include any notes.
-ALL JSON fields should have an entry.
-
-If there is any injury to the client/participant, the minimum 'severity' category should be medium.
-Any hospitalisation should be classified as 'high' under 'severity' and 'escalation' should be 'yes'.
-
-Required JSON format:
-{{
-  "incident": "yes or no",
-  "category": "health, behaviour, admin, other",
-  "severity": "low, medium, high",
-  "escalation_required": "yes or no"
-}}
-
-Case note:
-\"\"\"{text}\"\"\"
-"""
-    return llama_request(prompt)
-
+from whisper_module import transcribe_audio
+from llama_module import translate_text, extract_data
 
 
 if __name__ == "__main__":
-    user_input = input("Enter case note: ")
-    translation = translate_text(user_input)
-    structured = extract_data(translation)
 
-    print("\n--- Translation ---")
-    print(translation)
-    print("\n--- JSON Output ---")
-    print(structured)
+    audio_file = "sample.mp3"
+
+    # Transcribe
+    original_text, detected_language, confidence = transcribe_audio(audio_file)
+
+    print("\nDetected language:", detected_language)
+    print("Confidence:", round(confidence, 3))
+    print("\n--- Original Transcript ---")
+    print(original_text)
+
+    # Translate if needed
+    if detected_language != "en":
+        english_text = translate_text(original_text)
+    else:
+        english_text = original_text
+
+    print("\n--- English Version ---")
+    print(english_text)
+
+    # Classify
+    structured_output = extract_data(english_text)
+
+    print("\n--- Structured Output ---")
+    print(structured_output)

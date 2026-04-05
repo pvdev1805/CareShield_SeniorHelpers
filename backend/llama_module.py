@@ -2,11 +2,17 @@
 
 import requests
 
+# Local Ollama API used to send prompts to the LLM
 OLLAMA_URL = "http://localhost:11434/api/generate"
+
+# LLM Model
 MODEL_NAME = "llama3.1:8b"
 
 
 def llama_request(prompt):
+
+# Sends a prompt to the Ollama API and returns the model's response text.
+
     response = requests.post(
         OLLAMA_URL,
         json={
@@ -19,10 +25,16 @@ def llama_request(prompt):
             }
         }
     )
-    return response.json()["response"]
+
+    data = response.json()
+    return data.get("response", "")
 
 
 def translate_text(text):
+# Uses the LLM to translate input text into English.
+# The prompt strictly instructs the model to return only the translated sentence.
+
+        
     prompt = f"""
 Translate the following text to English.
 Only return the translated sentence.
@@ -36,7 +48,13 @@ Text: "{text}"
     return llama_request(prompt)
 
 
+
 def extract_data(text):
+
+# Uses the LLM to classify a case note and extract structured compliance data.
+# The model must return a JSON object with incident classification fields.
+
+
     prompt = f"""
 You are a clinical compliance assistant.
 
@@ -48,6 +66,7 @@ ALL JSON fields must be filled.
 
 If there is any injury to the client/participant, the minimum 'severity' category should be medium.
 Any hospitalisation should be classified as 'high' and 'escalation_required' should be 'yes'.
+
 
 Required JSON format:
 {{
