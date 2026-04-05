@@ -1,4 +1,5 @@
 import { Outlet } from 'react-router'
+import Header from '~/components/Header'
 import Sidebar from '~/components/Sidebar'
 
 const ChatLayout = () => {
@@ -7,9 +8,7 @@ const ChatLayout = () => {
       <main className='flex min-h-screen'>
         <Sidebar />
         <div className='flex-1'>
-          <header>
-            <h1>Chat</h1>
-          </header>
+          <Header />
           <div className='p-4'>
             <p>Welcome to the chat!</p>
             <Outlet />

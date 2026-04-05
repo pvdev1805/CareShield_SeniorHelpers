@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { FaComments, FaFileAlt, FaHistory, FaCog, FaBars, FaTimes } from 'react-icons/fa'
-import logoImg from '~/assets/images/logo-dark.svg'
+import logoDarkImg from '~/assets/images/logo-dark.svg'
 
 const menu = [
   { label: 'New Chat', icon: <FaComments />, path: '/chat' },
@@ -8,21 +8,21 @@ const menu = [
   { label: 'Sessions', icon: <FaHistory />, path: '/sessions' }
 ]
 
-export default function Sidebar() {
+const Sidebar = () => {
   const [collapsed, setCollapsed] = useState(false)
 
   return (
     <aside
-      className={`flex flex-col min-h-full ${collapsed ? 'w-20' : 'w-64'} bg-purple-800 text-white shadow-lg transition-all duration-300`}
+      className={`flex flex-col min-h-full ${collapsed ? 'w-16' : 'w-64'} bg-(--primary-color) text-white shadow-lg transition-all duration-300`}
     >
       <div
-        className={`flex items-center h-20 text-2xl font-bold tracking-wide border-b border-purple-700 ${
+        className={`flex items-center h-20 text-2xl font-bold tracking-wide border-b border-white/25 ${
           collapsed ? 'justify-center' : 'justify-between px-4'
         }`}
       >
         <a href='/chat'>
           <img
-            src={logoImg}
+            src={logoDarkImg}
             alt='Senior Helpers Logo'
             className={`${collapsed ? 'hidden' : 'block'} mr-3 h-10 w-auto object-contain`}
           />
@@ -32,7 +32,7 @@ export default function Sidebar() {
           type='button'
           onClick={() => setCollapsed((prev) => !prev)}
           aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-          className='p-2 border rounded-md hover:bg-purple-700 transition-colors'
+          className='p-2 border rounded-md hover:bg-white/25 transition-colors'
         >
           {collapsed ? <FaBars /> : <FaTimes />}
         </button>
@@ -40,10 +40,10 @@ export default function Sidebar() {
       <nav className='flex-1 py-6'>
         <ul className='space-y-2'>
           {menu.map((item) => (
-            <li key={item.label}>
+            <li key={item.label} className='px-2'>
               <a
                 href={item.path}
-                className={`flex items-center py-3 rounded-lg hover:bg-purple-700 transition-colors ${
+                className={`flex items-center py-3 rounded-lg hover:bg-white/25 transition-colors ${
                   collapsed ? 'justify-center px-3' : 'px-6'
                 }`}
               >
@@ -54,10 +54,10 @@ export default function Sidebar() {
           ))}
         </ul>
       </nav>
-      <div className='mt-auto mb-4 px-6'>
+      <div className='mt-auto mb-4 border-t border-white/25 px-2'>
         <a
           href='/settings'
-          className={`flex items-center py-2 rounded-lg hover:bg-purple-700 transition-colors ${
+          className={`mt-2 flex items-center py-2 rounded-lg hover:bg-white/25 transition-colors ${
             collapsed ? 'justify-center px-0' : 'px-4'
           }`}
         >
@@ -68,3 +68,5 @@ export default function Sidebar() {
     </aside>
   )
 }
+
+export default Sidebar
