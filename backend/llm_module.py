@@ -1,4 +1,4 @@
-# llama_module.py
+# llm_module.py
 
 import requests
 
@@ -6,10 +6,10 @@ import requests
 OLLAMA_URL = "http://localhost:11434/api/generate"
 
 # LLM Model
-MODEL_NAME = "llama3.1:8b"
+MODEL_NAME = "qwen2.5:32b"
 
 
-def llama_request(prompt):
+def llm_request(prompt):
 
 # Sends a prompt to the Ollama API and returns the model's response text.
 
@@ -45,7 +45,7 @@ Do not include any notes.
 
 Text: "{text}"
 """
-    return llama_request(prompt)
+    return llm_request(prompt)
 
 
 
@@ -81,4 +81,4 @@ Case note:
 {text}
 ---END---
 """
-    return llama_request(prompt)
+    return llm_request(prompt)

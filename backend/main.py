@@ -1,5 +1,5 @@
 from whisper_module import transcribe_audio
-from llama_module import translate_text, extract_data
+from llm_module import translate_text, extract_data
 
 
 if __name__ == "__main__":
