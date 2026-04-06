@@ -1,5 +1,6 @@
 import userAvatar from '~/assets/images/avatar.png'
 import aiAvatar from '~/assets/images/avatar-ai.svg'
+import { useEffect, useRef } from 'react'
 
 type Message = {
   id: string
@@ -13,6 +14,13 @@ interface ChatMessagesProps {
 }
 
 const ChatMessages = ({ messages }: ChatMessagesProps) => {
+  const bottomRef = useRef<HTMLDivElement>(null)
+
+  // Scroll to bottom whenever messages change
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages])
+
   return (
     <div className='flex-1 overflow-y-auto px-4 py-2 space-y-3 bg-gray-50'>
       {messages.map((msg, idx) => {
@@ -84,6 +92,8 @@ const ChatMessages = ({ messages }: ChatMessagesProps) => {
           </div>
         )
       })}
+
+      <div ref={bottomRef} />
     </div>
   )
 }
