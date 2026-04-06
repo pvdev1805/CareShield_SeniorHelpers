@@ -9,10 +9,7 @@ const ChatLayout = () => {
         <Sidebar />
         <div className='flex-1'>
           <Header />
-          <div className='p-4'>
-            <p>Welcome to the chat!</p>
-            <Outlet />
-          </div>
+          <Outlet />
         </div>
       </main>
     </>
