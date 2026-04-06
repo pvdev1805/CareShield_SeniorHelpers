@@ -1,6 +1,6 @@
+import { useRef, useEffect } from 'react'
+import MessageBubble from './MessageBubble'
 import userAvatar from '~/assets/images/avatar.png'
-import aiAvatar from '~/assets/images/avatar-ai.svg'
-import { useEffect, useRef } from 'react'
 
 type Message = {
   id: string
@@ -24,10 +24,10 @@ const ChatMessages = ({ messages }: ChatMessagesProps) => {
   return (
     <div className='flex-1 overflow-y-auto px-4 py-2 space-y-3 bg-gray-50'>
       {messages.map((msg, idx) => {
-        const isUser = msg.sender === 'user'
-        const showAvatar = idx === 0 || messages[idx - 1].sender !== msg.sender || messages[idx - 1].status
+        const showAvatar =
+          idx === 0 || messages[idx - 1].sender !== msg.sender || messages[idx - 1].status !== undefined
 
-        // Display different UI based on message status (recording, uploading, waiting, error)
+        // Handle special statuses for user messages (recording, uploading, waiting, error)
         if (msg.status === 'recording') {
           return (
             <div key={msg.id} className='flex justify-end items-end'>
@@ -70,29 +70,9 @@ const ChatMessages = ({ messages }: ChatMessagesProps) => {
           )
         }
 
-        // Display normal message
-        return (
-          <div key={msg.id} className={`flex ${isUser ? 'justify-end' : 'justify-start'} items-end`}>
-            {showAvatar && !isUser && (
-              <img src={aiAvatar} alt='AI' className='w-8 h-8 rounded-full mr-2 shadow border object-cover' />
-            )}
-            <div
-              className={`max-w-[70%] rounded-lg px-4 py-2 text-sm shadow 
-                ${isUser ? 'bg-purple-600 text-white ml-auto' : 'bg-white border text-gray-900 mr-auto'}`}
-              style={{
-                marginLeft: !showAvatar && !isUser ? '3rem' : undefined,
-                marginRight: !showAvatar && isUser ? '3rem' : undefined
-              }}
-            >
-              {msg.text}
-            </div>
-            {showAvatar && isUser && (
-              <img src={userAvatar} alt='User' className='w-8 h-8 rounded-full ml-2 shadow border object-cover' />
-            )}
-          </div>
-        )
+        // Display normal messages
+        return <MessageBubble key={msg.id} text={msg.text || ''} sender={msg.sender} showAvatar={showAvatar} />
       })}
-
       <div ref={bottomRef} />
     </div>
   )
