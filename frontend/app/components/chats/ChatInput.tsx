@@ -1,43 +1,26 @@
 import { useState, useRef } from 'react'
-import { FaMicrophone, FaMicrophoneSlash, FaPaperPlane } from 'react-icons/fa'
+import { FaMicrophone, FaStop, FaPaperPlane, FaSpinner } from 'react-icons/fa'
 
 interface ChatInputProps {
   onSend: (text: string) => void
+  onSendAudio: (audio: Blob) => Promise<void>
+  isUploading: boolean
+  isRecording: boolean
+  onRecordingStateChange: (recording: boolean) => void
 }
 
-const ChatInput = ({ onSend }: ChatInputProps) => {
+const ChatInput = ({ onSend, onSendAudio, isUploading, isRecording, onRecordingStateChange }: ChatInputProps) => {
   const [value, setValue] = useState('')
-  const [listening, setListening] = useState(false)
-  const recognitionRef = useRef<any>(null)
 
-  // Start voice recognition
-  const startListening = () => {
-    if (!('webkitSpeechRecognition' in window)) {
-      alert('Your browser does not support voice recognition.')
-      return
-    }
-    const SpeechRecognition = (window as any).webkitSpeechRecognition
-    const recognition = new SpeechRecognition()
-    recognition.lang = 'en-US'
-    recognition.interimResults = false
-    recognition.onresult = (event: any) => {
-      const transcript = event.results[0][0].transcript
-      setValue((prev) => (prev ? prev + ' ' : '') + transcript)
-      setListening(false)
-    }
-    recognition.onend = () => setListening(false)
-    recognition.onerror = () => setListening(false)
-    recognition.start()
-    setListening(true)
-    recognitionRef.current = recognition
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null)
+  const [chunks, setChunks] = useState<Blob[]>([])
+
+  // Handle text input change
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setValue(e.target.value)
   }
 
-  // Stop voice recognition
-  const stopListening = () => {
-    recognitionRef.current?.stop()
-    setListening(false)
-  }
-
+  // Send text message
   const handleSend = (e: React.FormEvent) => {
     e.preventDefault()
     if (value.trim()) {
@@ -46,22 +29,47 @@ const ChatInput = ({ onSend }: ChatInputProps) => {
     }
   }
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setValue(e.target.value)
+  // Start recording
+  const startRecording = async () => {
+    if (!navigator.mediaDevices?.getUserMedia) {
+      alert('Your browser does not support audio recording.')
+      return
+    }
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+    const mediaRecorder = new MediaRecorder(stream)
+    mediaRecorderRef.current = mediaRecorder
+    setChunks([])
+    mediaRecorder.ondataavailable = (e) => setChunks((prev) => [...prev, e.data])
+    mediaRecorder.onstop = async () => {
+      const audioBlob = new Blob(chunks, { type: 'audio/webm' })
+      await onSendAudio(audioBlob)
+      setChunks([])
+    }
+    mediaRecorder.start()
+    onRecordingStateChange(true)
+  }
+
+  // Stop recording
+  const stopRecording = () => {
+    mediaRecorderRef.current?.stop()
+    onRecordingStateChange(false)
   }
 
   return (
-    <form onSubmit={handleSend} className='flex items-center gap-2 px-4 py-3 border-t bg-white relative'>
+    <form className='flex items-center gap-2 px-4 py-3 border-t bg-white relative' onSubmit={handleSend}>
       {/* Voice button - left */}
       <button
         type='button'
-        onClick={listening ? stopListening : startListening}
-        className={`absolute left-6 p-2 rounded-full ${listening ? 'bg-purple-100' : 'bg-gray-100'} hover:bg-purple-200 transition-colors`}
-        aria-label={listening ? 'Stop recording' : 'Start voice input'}
+        onClick={isRecording ? stopRecording : startRecording}
+        className={`absolute left-6 p-2 rounded-full ${
+          isRecording ? 'bg-red-100' : 'bg-gray-100'
+        } hover:bg-purple-200 transition-colors`}
+        aria-label={isRecording ? 'Stop recording' : 'Start voice input'}
         style={{ zIndex: 2 }}
+        disabled={isUploading}
       >
-        {listening ? (
-          <FaMicrophoneSlash className='w-5 h-5 text-purple-700' />
+        {isRecording ? (
+          <FaStop className='w-5 h-5 text-red-600' />
         ) : (
           <FaMicrophone className='w-5 h-5 text-purple-700' />
         )}
@@ -70,21 +78,33 @@ const ChatInput = ({ onSend }: ChatInputProps) => {
       {/* Input - center */}
       <input
         className='flex-1 border rounded-full px-12 py-3 focus:outline-none bg-gray-50 text-gray-900 placeholder-gray-400'
-        placeholder='Type your note or speak...'
+        placeholder={
+          isRecording
+            ? 'Recording...'
+            : isUploading
+              ? 'Uploading audio...'
+              : 'Type or press the mic to record your message...'
+        }
         value={value}
         onChange={handleChange}
         autoComplete='off'
+        disabled={isRecording || isUploading}
         style={{ textIndent: 8, paddingRight: 48 }}
       />
 
       {/* Send button - right */}
       <button
         type='submit'
-        className='absolute right-6 bg-purple-700 text-white p-2 rounded-full hover:bg-purple-800 flex items-center justify-center transition-colors'
+        className='absolute right-6 bg-purple-700 text-white p-2 rounded-full flex items-center justify-center transition-colors'
         aria-label='Send message'
         style={{ zIndex: 2 }}
+        disabled={isRecording || isUploading || !value.trim()}
       >
-        <FaPaperPlane className='w-5 h-5' />
+        {isUploading ? (
+          <FaSpinner className='w-5 h-5 animate-spin' />
+        ) : (
+          <FaPaperPlane className={`w-5 h-5 ${isRecording || isUploading || !value.trim() ? 'opacity-50' : ''}`} />
+        )}
       </button>
     </form>
   )

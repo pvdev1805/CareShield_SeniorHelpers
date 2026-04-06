@@ -2,7 +2,7 @@ import avatarImg from '~/assets/images/avatar.png'
 
 const Header = () => {
   return (
-    <header className='flex items-center justify-between px-6 py-2 bg-white border-b shadow-sm h-14'>
+    <header className='flex items-center justify-between px-6 py-2 bg-white border-b border-gray-300 shadow-sm h-14'>
       {/* Brand name */}
       <div className='font-bold text-xl text-purple-700'>
         <a href='/chat'>CareShield</a>

@@ -32,6 +32,7 @@ const Sidebar = () => {
           type='button'
           onClick={() => setCollapsed((prev) => !prev)}
           aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          title={collapsed ? 'Expand' : 'Collapse'}
           className='p-2 border rounded-md hover:bg-white/25 transition-colors'
         >
           {collapsed ? <FaBars /> : <FaTimes />}
@@ -57,7 +58,7 @@ const Sidebar = () => {
       <div className='mt-auto mb-4 border-t border-white/25 px-2'>
         <a
           href='/settings'
-          className={`mt-2 flex items-center py-2 rounded-lg hover:bg-white/25 transition-colors ${
+          className={`mt-2 flex items-center py-3 rounded-lg hover:bg-white/25 transition-colors ${
             collapsed ? 'justify-center px-0' : 'px-4'
           }`}
         >
