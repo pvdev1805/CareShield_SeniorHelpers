@@ -1,2 +1,6 @@
 requests
 faster-whisper
+langdetect
+uuid
+json
+datetime
