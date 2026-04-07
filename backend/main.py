@@ -166,6 +166,7 @@ def final_extraction(case_record):
         "category": structured_data.get("category"),
         "severity": structured_data.get("severity"),
         "escalation_required": escalation,
+        "summary": structured_data.get("summary"),
         "last_updated": get_timestamp()
     })
 

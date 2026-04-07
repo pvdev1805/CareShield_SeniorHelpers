@@ -124,7 +124,6 @@ def extract_data(text):
     prompt = f"""
 You are an AI compliance assistant for an aged care and NDIS provider. You receive case notes from support workers that are caring for their clients (referred to as "participants").
 
-
 Analyse the case note and extract structured information.
 
 Instructions:
@@ -133,6 +132,8 @@ Instructions:
 - Hospitalisation or serious injury automatically implies:
   - severity: high
   - escalation_required: yes
+- Generate a concise and accurate summary of the case note in English.
+- The summary should reflect the factual events only and avoid assumptions.
 
 Return ONLY valid JSON. Do not include explanations, markdown, or extra text.
 All fields must contain a value.
@@ -156,7 +157,8 @@ Required JSON format:
   "report_type": "incident | feedback_complaint | case_note",
   "category": "health | behaviour | administrative | other",
   "severity": "low | medium | high | none",
-  "escalation_required": "yes | no"
+  "escalation_required": "yes | no",
+  "summary": "Concise factual summary of the case note"
 }}
 
 Case Note:
