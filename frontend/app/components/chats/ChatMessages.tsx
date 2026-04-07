@@ -1,6 +1,7 @@
 import { useRef, useEffect } from 'react'
 import MessageGroup from './MessageGroup'
 import type { Message } from '~/types/chat'
+import IncidentSummaryCard from './IncidentSummaryCard'
 
 interface ChatMessagesProps {
   messages: Message[]
@@ -35,6 +36,7 @@ const ChatMessages = ({ messages }: ChatMessagesProps) => {
       {groups.map((group) => (
         <MessageGroup key={group[0].id} group={group} />
       ))}
+      <IncidentSummaryCard />
       <div ref={bottomRef} />
     </div>
   )
