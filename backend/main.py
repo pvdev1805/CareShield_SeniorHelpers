@@ -64,11 +64,18 @@ def process_input(user_input, is_voice_input, case_record):
     case_record.setdefault("original_language", detected_language)
 
     # Log the interaction
-    case_record["conversation_log"].append({
+    log_entry = {
         "role": "user",
+        "timestamp": timestamp,
         "message": original_text,
-        "timestamp": timestamp
-    })
+    }
+
+    # Include translation if not English
+    if detected_language.lower() != "en":
+        log_entry["translated_message"] = english_text
+
+    # Append to conversation log
+    case_record["conversation_log"].append(log_entry)
 
     # Accumulate full original conversation text
     case_record["full_original_text"] = (case_record.get("full_original_text", "") + " " + original_text).strip()
@@ -96,16 +103,24 @@ def conversational_pipeline(user_input, is_voice_input, case_record):
 
         follow_up = follow_up.strip().strip('"').strip("'")
 
-        # Validate question format
+        # Validate question is a proper question
         if not follow_up.endswith("?") or len(follow_up) < 5:
             return case_record
 
-        # Log assistant question
-        case_record["conversation_log"].append({
+        # Log assistant question 
+        assistant_timestamp = get_timestamp()
+        assistant_entry = {
             "role": "assistant",
-            "message": follow_up,
-            "timestamp": get_timestamp()
-        })
+            "timestamp": assistant_timestamp,
+            "message": follow_up           
+        }
+        # Translate assistant message if the conversation is not in English
+        if case_record.get("original_language", "en").lower() != "en":
+            translation_result = translate_and_detect_language(follow_up)
+            assistant_entry["translated_message"] = translation_result.get("translated_text", follow_up)
+        # Append to conversation log
+        case_record["conversation_log"].append(assistant_entry)
+
 
         print("\nFollow Up Question:")
         print(follow_up)

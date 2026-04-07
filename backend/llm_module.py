@@ -67,7 +67,7 @@ Determine whether additional information is required to complete a compliant cas
 ONLY ask a follow-up question if essential information is missing.
 
 Strict Instructions:
-- You only need enough information to define the following:
+- You only need enough information to classify the following:
     Reporting Type:
     - incident
     - feedback_complaint
@@ -83,7 +83,7 @@ Strict Instructions:
     - high, medium, low, none
 
 - Only ask ONE question at a time.
-- Do NOT ask a question if all information can be reasonably determined - return an empty response.
+- Do NOT ask a question if all information can be reasonably classified - return an empty response.
 - Limit the number of questions you ask, preferably to NO MORE than TWO QUESTIONS.
 - Do NOT repeat questions already asked.
 - Do NOT ask questions that have already been answered.
@@ -93,9 +93,10 @@ Strict Instructions:
 
 Guidelines:
 - If no harm is mentioned, assume severity is NONE.
-- Only ask about medical care if there is a possible injury and it has not been clarified.
+- You should ask about medical care if there is a possible injury and it has not been clarified.
+- ONLY if an incident occurered, you should ask what time it occured.
+- Your question should ask the user to provide more information, rather than a yes or no question.
 - If enough information is available, return an empty response.
-- You should return the follow up question in the same language as the user's message. 
 
 Return ONLY the question text with no explanations, no JSON, and no extra formatting (including quotation marks).
 
