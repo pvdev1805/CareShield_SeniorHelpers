@@ -2,7 +2,7 @@ import { Outlet } from 'react-router'
 import Header from '~/components/Header'
 import Sidebar from '~/components/Sidebar'
 
-const ChatLayout = () => {
+const Layout = () => {
   return (
     <>
       <main className='flex min-h-screen'>
@@ -16,4 +16,4 @@ const ChatLayout = () => {
   )
 }
 
-export default ChatLayout
+export default Layout

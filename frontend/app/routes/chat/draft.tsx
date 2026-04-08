@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { Route } from './+types/chat'
+import type { Route } from '../+types/chat'
 import ChatHeader from '~/components/chats/ChatHeader'
 import ChatMessages from '~/components/chats/ChatMessages'
 import ChatInput from '~/components/chats/ChatInput'
