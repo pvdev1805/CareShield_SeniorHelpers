@@ -4,6 +4,7 @@ import ChatHeader from '~/components/chats/ChatHeader'
 import ChatMessages from '~/components/chats/ChatMessages'
 import ChatInput from '~/components/chats/ChatInput'
 import { nanoid } from 'nanoid'
+import WelcomePanel from '~/components/chats/WelcomePanel'
 
 type ChatMessage = {
   id: string
@@ -89,7 +90,8 @@ const Chat = () => {
   return (
     <div className='flex flex-col h-[calc(100vh-56px)] bg-gray-100'>
       <ChatHeader />
-      <ChatMessages messages={messages} />
+      <WelcomePanel />
+      {/* <ChatMessages messages={messages} /> */}
       <ChatInput
         onSend={handleSend}
         onSendAudio={handleSendAudio}
