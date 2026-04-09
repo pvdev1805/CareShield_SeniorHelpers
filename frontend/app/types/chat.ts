@@ -2,7 +2,7 @@ import type { IncidentSummary } from './incident'
 
 export type MessageStatus = 'recording' | 'uploading' | 'waiting' | 'error' | undefined
 
-export type Message = {
+export type ChatMessage = {
   id: string
   sender: 'user' | 'ai'
   text?: string
