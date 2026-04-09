@@ -5,6 +5,7 @@ export default [
   layout('routes/_layout.tsx', [
     route('chat', 'routes/chat/_index.tsx'),
     route('sessions', 'routes/sessions/_index.tsx'),
-    route('sessions/:id', 'routes/sessions/detail.tsx')
+    route('sessions/:id', 'routes/sessions/detail.tsx'),
+    route('case-notes', 'routes/case-notes/_index.tsx')
   ])
 ] satisfies RouteConfig

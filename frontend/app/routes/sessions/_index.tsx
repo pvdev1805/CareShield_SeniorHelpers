@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router'
-import ChatHeader from '~/components/chats/ChatHeader'
+import { Link } from 'react-router'
 
 type ChatSession = {
   id: string
@@ -11,7 +10,6 @@ type ChatSession = {
 
 const SessionsPage = () => {
   const [sessions, setSessions] = useState<ChatSession[]>([])
-  const navigate = useNavigate()
 
   useEffect(() => {
     /*
@@ -51,14 +49,16 @@ const SessionsPage = () => {
         ) : (
           <ul className='space-y-4'>
             {sessions.map((session) => (
-              <li
-                key={session.id}
-                className='p-4 bg-white rounded-lg shadow cursor-pointer hover:bg-purple-50 transition'
-                onClick={() => navigate(`/sessions/${session.id}`)}
-              >
-                <div className='font-semibold text-purple-700'>{session.title}</div>
-                <div className='text-sm text-gray-500'>{session.createdAt}</div>
-                {session.lastMessage && <div className='text-gray-700 mt-1 truncate'>{session.lastMessage}</div>}
+              <li key={session.id}>
+                <Link
+                  to={`/sessions/${session.id}`}
+                  className='block p-4 bg-white rounded-lg shadow transition-all duration-200
+                    hover:bg-purple-50 hover:shadow-lg hover:-translate-y-1 border border-transparent hover:border-purple-400'
+                >
+                  <div className='font-semibold text-purple-700'>{session.title}</div>
+                  <div className='text-sm text-gray-500'>{session.createdAt}</div>
+                  {session.lastMessage && <div className='text-gray-700 mt-1 truncate'>{session.lastMessage}</div>}
+                </Link>
               </li>
             ))}
           </ul>
