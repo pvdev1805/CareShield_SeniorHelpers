@@ -2,6 +2,7 @@ from pydantic_settings import BaseSettings
 from pydantic_settings import SettingsConfigDict
 
 
+
 #Place holder settings for project
 #To be read from .env file
 #Dictionary must preserve same order as .env file !
@@ -14,7 +15,7 @@ class Settings(BaseSettings):
     api_prefix: str = "/api"
 
     #DATABASE
-    database_url: str = "postgresql+psycopg://postgres:@localhost:5432/careshield"
+    database_url: str = "postgresql+psycopg://postgres:admin@localhost:5432/careshield"
 
     #------------------------------------------
     #JWT - MUST CHANGE KEY PRIOR TO HANDOVER!!!
@@ -25,7 +26,7 @@ class Settings(BaseSettings):
 
     #AI MODELS
     ollama_url: str = "http://localhost:11434/api/generate"
-    ollama_model: str = "llama3.1:8b"
+    ollama_model: str = "qwen2.5:32b"
     whisper_model_size: str = "base"
     whisper_device: str = "cpu"
     whisper_compute_type: str = "int8"

@@ -1,11 +1,17 @@
 import requests
 import json
+from app.core.config import settings
 
-OLLAMA_URL = "http://localhost:11434/api/generate"
-MODEL_NAME = "qwen2.5:32b"
+OLLAMA_URL = settings.ollama_url
+MODEL_NAME = settings.ollama_model
 
 # Send a prompt to Ollama API and return the response.
 def llm_request(prompt):
+    print("\n --- LLM REQUEST ---")
+    print("model:", MODEL_NAME)
+    print("URL:", OLLAMA_URL)
+    print("PROMPT\n")
+    print(prompt[:1000])
     
     response = requests.post(
         OLLAMA_URL,

@@ -1,7 +1,7 @@
 from datetime import datetime , date, time
 from sqlalchemy import DateTime, Integer, String, ForeignKey, Boolean, Text, JSON, Date, Time
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from backend.app.db.base import Base
+from app.db.base import Base
 
 """
 User
@@ -43,6 +43,8 @@ class User(Base):
     # 1:N
     chat_session = relationship("ChatSession", back_populates="user", cascade="all, delete-orphan")
 
+    case_note = relationship("CaseNote", back_populates="user", cascade="all, delete-orphan")
+
 
 
 #----------------
@@ -61,11 +63,11 @@ class ChatSession(Base):
     ended_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
 
     # 1:N
-    user = relationship("User", back_populates="chat_session", cascade="all, delete-orphan")
+    user = relationship("User", back_populates="chat_session")
     # 1:N
     message = relationship("Message", back_populates="chat_session", cascade="all, delete-orphan")
     # 1:1
-    casse_note = relationship("CaseNote", back_populates="chat_session", uselist=False)
+    case_note = relationship("CaseNote", back_populates="chat_session", uselist=False)
 
 
 
@@ -91,7 +93,7 @@ class Message(Base):
 ### CASE NOTES TABLE ###
 #----------------
 
-class CassNote(Base):
+class CaseNote(Base):
     __tablename__ = "case_note"
     #Primary key
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
@@ -100,13 +102,13 @@ class CassNote(Base):
     #Foreign key
     user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
 
-    orginal_text: Mapped[str] = mapped_column(Text, nullable=False)
-    orginal_language: Mapped[str] = mapped_column(String(63), default="en")
+    original_text: Mapped[str] = mapped_column(Text, nullable=False)
+    original_language: Mapped[str] = mapped_column(String(63), default="en")
     english_translation: Mapped[str | None] = mapped_column(Text, nullable=True)
 
-    incident_occured: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
-    incidient_date : Mapped[date] = mapped_column(Date, default=datetime.now().date())
-    incidient_time : Mapped[time] = mapped_column(Time, default=datetime.now().time())
+    incident_occurred: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    incident_date : Mapped[date] = mapped_column(Date, default=datetime.now().date())
+    incident_time : Mapped[time] = mapped_column(Time, default=datetime.now().time())
     incident_type: Mapped[str | None] = mapped_column(String(255), nullable=True)
     location: Mapped[str | None] = mapped_column(String(255), nullable=True)
     injury_status: Mapped[str | None] = mapped_column(String(255), nullable=True)
@@ -116,7 +118,7 @@ class CassNote(Base):
 
     metadata_json: Mapped[dict | None] = mapped_column("metadata", JSON, nullable=True)
 
-    user = relationship("User", back_populates="case_notes")
+    user = relationship("User", back_populates="case_note")
     chat_session = relationship("ChatSession", back_populates="case_note")
 
 
