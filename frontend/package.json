@@ -40,5 +40,12 @@
     "vite": "^7.1.7",
     "vite-plugin-devtools-json": "^1.0.0",
     "vite-tsconfig-paths": "^5.1.4"
+  },
+  "overrides": {
+    "eslint-plugin-react-hooks": {
+      "peerDependencies": {
+        "eslint": "^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0 || ^9.0.0 || ^10.0.0"
+      }
+    }
   }
 }
