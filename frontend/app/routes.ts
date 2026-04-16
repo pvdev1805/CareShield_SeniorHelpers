@@ -6,6 +6,7 @@ export default [
     route('chat', 'routes/chat/_index.tsx'),
     route('sessions', 'routes/sessions/_index.tsx'),
     route('sessions/:id', 'routes/sessions/detail.tsx'),
-    route('case-notes', 'routes/case-notes/_index.tsx')
+    route('case-notes', 'routes/case-notes/_index.tsx'),
+    route('case-notes/:id', 'routes/case-notes/$id.tsx')
   ])
 ] satisfies RouteConfig

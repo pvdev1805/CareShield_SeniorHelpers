@@ -11,7 +11,7 @@ const statusConfig = {
   uploading: {
     className: 'bg-gray-800 text-white',
     icon: <span className='mr-2 animate-spin'>⏳</span>,
-    text: 'Uploading audio...'
+    text: 'Uploading...'
   },
   waiting: {
     className: 'bg-gray-800 text-white',

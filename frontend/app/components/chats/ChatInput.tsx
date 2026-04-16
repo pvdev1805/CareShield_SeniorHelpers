@@ -13,7 +13,7 @@ const ChatInput = ({ onSend, onSendAudio, isUploading, isRecording, onRecordingS
   const [value, setValue] = useState('')
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
-  const [chunks, setChunks] = useState<Blob[]>([])
+  const chunksRef = useRef<Blob[]>([])
 
   // Handle text input change
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -35,19 +35,35 @@ const ChatInput = ({ onSend, onSendAudio, isUploading, isRecording, onRecordingS
       alert('Your browser does not support audio recording.')
       return
     }
+
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-    const mediaRecorder = new MediaRecorder(stream)
+
+    const mediaRecorder = new MediaRecorder(stream, {
+      mimeType: 'audio/webm;codecs=opus'
+    })
+
     mediaRecorderRef.current = mediaRecorder
-    setChunks([])
-    mediaRecorder.ondataavailable = (e) => setChunks((prev) => [...prev, e.data])
-    mediaRecorder.onstop = async () => {
-      const audioBlob = new Blob(chunks, { type: 'audio/webm' })
-      await onSendAudio(audioBlob)
-      setChunks([])
+    chunksRef.current = []
+
+    mediaRecorder.ondataavailable = (e) => {
+      if (e.data.size > 0) {
+        chunksRef.current.push(e.data)
+      }
     }
-    mediaRecorder.start()
-    onRecordingStateChange(true)
+
+  mediaRecorder.onstop = async () => {
+    const audioBlob = new Blob(chunksRef.current, {
+      type: 'audio/webm;codecs=opus'
+    })
+
+    chunksRef.current = []
+
+    await onSendAudio(audioBlob)
   }
+
+  mediaRecorder.start()
+  onRecordingStateChange(true)
+}
 
   // Stop recording
   const stopRecording = () => {
@@ -82,7 +98,7 @@ const ChatInput = ({ onSend, onSendAudio, isUploading, isRecording, onRecordingS
           isRecording
             ? 'Recording...'
             : isUploading
-              ? 'Uploading audio...'
+              ? 'Uploading...'
               : 'Type or press the mic to record your message...'
         }
         value={value}
