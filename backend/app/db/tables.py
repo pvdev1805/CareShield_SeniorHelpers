@@ -1,5 +1,5 @@
 from datetime import datetime , date, time
-from sqlalchemy import DateTime, Integer, String, ForeignKey, Boolean, Text, JSON, Date, Time
+from sqlalchemy import DateTime, Integer, String, ForeignKey, Boolean, Text, JSON, Date, Time, Column
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.base import Base
 
@@ -77,15 +77,26 @@ class ChatSession(Base):
 class Message(Base):
     __tablename__ = "message"
 
-    #Primary key
+    # Primary key
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-    #Foreign key
+    # Foreign key
     chat_session_id: Mapped[int] = mapped_column(ForeignKey("chat_session.id"), nullable=False)
 
     message_sender_role: Mapped[str] = mapped_column(String(63), nullable=False)
     content: Mapped[str] = mapped_column(Text, nullable=False)
+    translated_content: Mapped[str | None] = mapped_column(Text, nullable=True)
     detected_language: Mapped[str] = mapped_column(String(63), default="en")
+    input_type = Column(String, default="text") # Added
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
+
+    # Add was_translated property flag
+    @property
+    def was_translated(self) -> bool:
+        return bool(
+            self.translated_content
+            and self.detected_language
+            and self.detected_language.lower() != "en"
+        )
 
     chat_session = relationship("ChatSession", back_populates="message")
 

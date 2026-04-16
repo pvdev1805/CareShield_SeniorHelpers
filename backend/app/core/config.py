@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     api_prefix: str = "/api"
 
     #DATABASE
-    database_url: str = "postgresql+psycopg://postgres:admin@localhost:5432/careshield"
+    database_url: str = "postgresql+psycopg://postgres:admin@host.docker.internal:5432/careshield" # change for deployment
 
     #------------------------------------------
     #JWT - MUST CHANGE KEY PRIOR TO HANDOVER!!!
@@ -25,7 +25,7 @@ class Settings(BaseSettings):
     access_token_expire_min: int = 720
 
     #AI MODELS
-    ollama_url: str = "http://localhost:11434/api/generate"
+    ollama_url: str = "http://host.docker.internal:11434/api/generate" # was: "http://localhost:11434/api/generate" monitor for deployment
     ollama_model: str = "qwen2.5:32b"
     whisper_model_size: str = "base"
     whisper_device: str = "cpu"

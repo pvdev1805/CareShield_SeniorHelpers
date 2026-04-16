@@ -11,5 +11,6 @@ sqlalchemy
 pydantic
 pydantic-settings
 uvicorn
+python-multipart
 #DB
 psycopg
