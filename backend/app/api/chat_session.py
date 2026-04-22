@@ -8,6 +8,7 @@ from app.db.tables import ChatSession, Message
 from app.schemas.chat import (
     ChatReply,
     ChatSessionResponse,
+    ChatSessionListItem,
     MessageCreate,
     MessageResponse,
 )
@@ -35,6 +36,56 @@ def create_chat_session(db: Session = Depends(get_db)):
     db.commit()
     db.refresh(session)
     return session
+
+# GET CHAT SESSION LIST ENDPOINT
+@router.get("", response_model=list[ChatSessionListItem])
+def list_chat_sessions(db: Session = Depends(get_db)):
+    sessions = (
+        db.query(ChatSession)
+        .order_by(ChatSession.started_at.desc())
+        .all()
+    )
+
+    results : list[ChatSessionListItem] = []
+
+    for session in sessions:
+        messages = (
+            db.query(Message)
+            .filter(Message.chat_session_id == session.id)
+            .order_by(Message.created_at.asc())
+            .all()
+        )
+
+        first_user_message = next(
+            (msg for msg in messages if msg.messagge_sender_role == "user"),
+            None
+        )
+
+        last_message = messages[-1] if messages else None
+
+        if first_user_message and first_user_message.content.strip():
+            title = first_user_message.content.strip()[:50]
+        else:
+            title = f"Chat Session {session.id}"
+        
+        results.append(
+            ChatSessionListItem(
+                id = session.id,
+                session_active = session.session_active,
+                started_at = session.started_at,
+                ended_at = session.ended_at,
+                title = title,
+                last_message = last_message.content if last_message else None,
+                last_message_at = last_message.created_at if last_message else None,
+            )
+        )
+
+        results.sort(
+            key=lambda x: x.last_message_at or x.started_at,
+            reverse=True
+        )
+
+        return results
 
 # DATABASE MESSAGES ENDPOINT
 @router.get("/{session_id}/message", response_model=list[MessageResponse])

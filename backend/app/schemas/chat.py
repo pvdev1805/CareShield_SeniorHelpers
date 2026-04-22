@@ -38,3 +38,15 @@ class ChatReply(BaseModel):
 
     class Config:
         from_attributes = True
+
+class ChatSessionListItem(BaseModel):
+    id: int
+    session_active: bool
+    started_at: datetime
+    ended_at: Optional[datetime] = None
+    title: str
+    last_message: Optional[str] = None
+    last_message_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
