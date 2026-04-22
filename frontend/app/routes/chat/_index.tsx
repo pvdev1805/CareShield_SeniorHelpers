@@ -1,33 +1,70 @@
-import { useEffect } from 'react'
+import { useState } from 'react'
+import type { Route } from '../chat/+types/_index'
+import ChatHeader from '~/components/chats/ChatHeader'
+import ChatInput from '~/components/chats/ChatInput'
+import WelcomePanel from '~/components/chats/WelcomePanel'
 import { useNavigate } from 'react-router'
-import { createChatSession } from '~/lib/api'
+import { startChatSession, startChatSessionWithAudio } from '~/lib/api'
 
-export const meta = () => {
+export const meta = ({}: Route.MetaArgs) => {
   return [
     { title: 'Chat' },
-    { name: 'description', content: 'Starting new chat session...' }
+    {
+      name: 'description',
+      content: 'Chat with the AI assistant and get insights.'
+    }
   ]
 }
 
 const ChatPage = () => {
+  const [isRecording, setIsRecording] = useState(false)
+  const [isUploading, setIsUploading] = useState(false)
   const navigate = useNavigate()
 
-  useEffect(() => {
-    const startSession = async () => {
-      try {
-        const session = await createChatSession()
-        navigate(`/sessions/${session.id}`)
-      } catch (error) {
-        console.error('Error creating chat session:', error)
-      }
-    }
+  const handleSendFirstMessage = async (message: string) => {
+    const trimmed = message.trim()
+    if (!trimmed || isUploading) return
 
-    startSession()
-  }, [navigate])
+    try {
+      setIsUploading(true)
+
+      const data = await startChatSession(trimmed)
+
+      navigate(`/sessions/${data.chat_session_id}`)
+    } catch (error) {
+      console.error('Error creating chat session with first message:', error)
+    } finally {
+      setIsUploading(false)
+    }
+  }
+
+  const handleSendFirstAudio = async (audioBlob: Blob) => {
+    if (isUploading) return
+
+    try {
+      setIsUploading(true)
+
+      const data = await startChatSessionWithAudio(audioBlob)
+
+      navigate(`/sessions/${data.chat_session_id}`)
+    } catch (error) {
+      console.error('Error creating chat session with first audio message:', error)
+    } finally {
+      setIsUploading(false)
+    }
+  }
 
   return (
-    <div className="flex items-center justify-center h-screen bg-gray-100">
-      <p className="text-gray-600 text-lg">Starting new chat session...</p>
+    <div className='flex flex-col h-[calc(100vh-56px)] bg-gray-100'>
+      <ChatHeader />
+      <WelcomePanel />
+      <ChatInput
+        onSend={handleSendFirstMessage}
+        onSendAudio={handleSendFirstAudio}
+        onRecordingStateChange={setIsRecording}
+        isUploading={isUploading}
+        isRecording={isRecording}
+      />
     </div>
   )
 }
