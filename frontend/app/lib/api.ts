@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://host.docker.internal:8000/api'
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://host.docker.internal:8000/api'
 
 export async function createChatSession() {
   const res = await fetch(`${API_BASE_URL}/chat-session`, {
@@ -11,6 +11,7 @@ export async function createChatSession() {
 
 export async function getChatSessions() {
   const res = await fetch(`${API_BASE_URL}/chat-session`)
+  console.log(`API_BASE_URL: ${API_BASE_URL}`)
   if (!res.ok) throw new Error('Failed to fetch chat sessions')
   return res.json()
 }
