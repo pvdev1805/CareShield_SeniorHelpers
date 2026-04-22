@@ -57,7 +57,7 @@ def list_chat_sessions(db: Session = Depends(get_db)):
         )
 
         first_user_message = next(
-            (msg for msg in messages if msg.messagge_sender_role == "user"),
+            (msg for msg in messages if msg.message_sender_role == "user"),
             None
         )
 
@@ -85,7 +85,7 @@ def list_chat_sessions(db: Session = Depends(get_db)):
             reverse=True
         )
 
-        return results
+    return results
 
 # DATABASE MESSAGES ENDPOINT
 @router.get("/{session_id}/message", response_model=list[MessageResponse])
