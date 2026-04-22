@@ -5,7 +5,7 @@ import ChatHeader from '~/components/chats/ChatHeader'
 import ChatInput from '~/components/chats/ChatInput'
 import ChatMessages from '~/components/chats/ChatMessages'
 import type { ChatMessage } from '~/types/chat'
-import { getMessages, sendMessage, generateCaseNote } from '~/lib/api'
+import { getMessages, sendMessage, generateCaseNote, API_BASE_URL } from '~/lib/api'
 
 const SessionDetailPage = () => {
   const { id: sessionId } = useParams()
@@ -157,13 +157,10 @@ const SessionDetailPage = () => {
       const formData = new FormData()
       formData.append('audio', audioBlob, 'recording.webm')
 
-      const response = await fetch(
-        `http://localhost:8000/api/chat-session/${sessionId}/message/audio`,
-        {
-          method: 'POST',
-          body: formData
-        }
-      )
+      const response = await fetch(`${API_BASE_URL}/chat-session/${sessionId}/message/audio`, {
+        method: 'POST',
+        body: formData
+      })
 
       if (!response.ok) {
         throw new Error('Failed to send audio message')
@@ -175,18 +172,20 @@ const SessionDetailPage = () => {
       setMessages((msgs) =>
         msgs
           .filter((msg) => msg.id !== tempId && msg.id !== typingId)
-          .concat([
-            {
-              id: reply.user_message.id.toString(),
-              sender: 'user',
-              text: reply.user_message.content
-            },
-            reply.assistant_message && {
-              id: reply.assistant_message.id.toString(),
-              sender: 'ai',
-              text: reply.assistant_message.content
-            }
-          ].filter(Boolean))
+          .concat(
+            [
+              {
+                id: reply.user_message.id.toString(),
+                sender: 'user',
+                text: reply.user_message.content
+              },
+              reply.assistant_message && {
+                id: reply.assistant_message.id.toString(),
+                sender: 'ai',
+                text: reply.assistant_message.content
+              }
+            ].filter(Boolean)
+          )
       )
 
       if (reply.note_ready) {
@@ -249,16 +248,13 @@ const SessionDetailPage = () => {
         }
       ])
     } else {
-      setMessages((msgs) =>
-        msgs.filter((msg) => !(msg.sender === 'user' && msg.status === 'recording'))
-      )
+      setMessages((msgs) => msgs.filter((msg) => !(msg.sender === 'user' && msg.status === 'recording')))
     }
   }
 
   return (
     <div className='flex flex-col h-[calc(100vh-56px)] bg-gray-100'>
-
-      <ChatHeader  />
+      <ChatHeader />
 
       <ChatMessages messages={messages} />
 
