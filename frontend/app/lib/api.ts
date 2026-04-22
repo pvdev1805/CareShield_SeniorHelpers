@@ -1,3 +1,5 @@
+import type { StartChatSessionResponse } from '~/types/session'
+
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://host.docker.internal:8000/api'
 
 export async function createChatSession() {
@@ -11,7 +13,6 @@ export async function createChatSession() {
 
 export async function getChatSessions() {
   const res = await fetch(`${API_BASE_URL}/chat-session`)
-  console.log(`API_BASE_URL: ${API_BASE_URL}`)
   if (!res.ok) throw new Error('Failed to fetch chat sessions')
   return res.json()
 }
@@ -43,5 +44,29 @@ export async function generateCaseNote(sessionId: number) {
 export async function getCaseNote(id: number) {
   const res = await fetch(`${API_BASE_URL}/case-notes/${id}`)
   if (!res.ok) throw new Error('Failed to fetch case note')
+  return res.json()
+}
+
+export async function startChatSession(content: string): Promise<StartChatSessionResponse> {
+  const res = await fetch(`${API_BASE_URL}/chat-session/start`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ content })
+  })
+
+  if (!res.ok) throw new Error('Failed to start chat session')
+  return res.json()
+}
+
+export async function startChatSessionWithAudio(audioBlob: Blob): Promise<StartChatSessionResponse> {
+  const formData = new FormData()
+  formData.append('audio', audioBlob, 'recording.webm')
+
+  const res = await fetch(`${API_BASE_URL}/chat-session/start/audio`, {
+    method: 'POST',
+    body: formData
+  })
+
+  if (!res.ok) throw new Error('Failed to start chat session with audio')
   return res.json()
 }

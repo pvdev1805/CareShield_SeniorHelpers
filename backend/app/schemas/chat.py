@@ -50,3 +50,16 @@ class ChatSessionListItem(BaseModel):
 
     class Config:
         from_attributes = True
+
+class StartChatSessionRequest(BaseModel):
+    content: str
+
+class StartChatSessionResponse(BaseModel):
+    chat_session_id: int
+    user_message: MessageResponse
+    assistant_message: Optional[MessageResponse] = None
+    note_ready: bool = False
+    missing_slots: List[str] = []
+
+    class Config:
+        from_attributes = True
