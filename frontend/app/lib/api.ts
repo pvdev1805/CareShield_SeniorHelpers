@@ -41,6 +41,12 @@ export async function generateCaseNote(sessionId: number) {
   return res.json()
 }
 
+export async function getCaseNotes() {
+  const res = await fetch(`${API_BASE_URL}/case-notes`)
+  if (!res.ok) throw new Error('Failed to fetch case notes')
+  return res.json()
+}
+
 export async function getCaseNote(id: number) {
   const res = await fetch(`${API_BASE_URL}/case-notes/${id}`)
   if (!res.ok) throw new Error('Failed to fetch case note')
