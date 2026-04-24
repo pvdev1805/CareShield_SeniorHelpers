@@ -123,24 +123,27 @@ Conversation History:
 
 
 # uses LLM to classify a case note and extract structured JSON data for case note.
-def extract_data(text):
+def extract_data(text, current_date: str | None = None):
 
     prompt = f"""
-You are an AI compliance assistant for an aged care and NDIS provider. You receive case notes from support workers that are caring for their clients (referred to as "participants").
+You are an AI compliance assistant for an aged care and NDIS provider.
 
 Analyse the case note and extract structured information.
 
-Instructions:
+Current date: {current_date}
+
+Important rules:
 - Do NOT generate follow-up questions.
 - Assume all required information has already been collected.
-- Hospitalisation or serious injury automatically implies:
-  - severity: high
-  - escalation_required: yes
-- Generate a concise and accurate summary of the case note in English.
-- The summary should reflect the factual events only and avoid assumptions.
-
-Return ONLY valid JSON. Do not include explanations, markdown, or extra text.
-All fields must contain a value.
+- Return ONLY valid JSON.
+- Do not include markdown, explanations, or extra text.
+- If a field is not available, use null.
+- If the user says "today", convert it to the current date.
+- If the user gives approximate time such as "around 3 PM", "approximately 10 AM", or "about 2 PM", extract it as a valid time.
+- Use 24-hour format for incident_time, for example "14:30" or "10:00".
+- The field "incident_occurred" should be true when an event, issue, fall, refusal, complaint, health concern, behaviour concern, or care-related situation occurred.
+- The field "location" should be extracted if the user mentioned where the event happened.
+- The field "injury_status" should describe injury, symptoms, pain, harm, or "no visible injuries" where applicable.
 
 Reporting Types:
 - incident
@@ -154,12 +157,21 @@ Categories:
 - other
 
 Severity Levels:
-- high, medium, low, none
+- high
+- medium
+- low
+- none
 
 Required JSON format:
 {{
   "report_type": "incident | feedback_complaint | case_note",
   "category": "health | behaviour | administrative | other",
+  "incident_occurred": true,
+  "incident_date": "YYYY-MM-DD or null",
+  "incident_time": "HH:MM or null",
+  "incident_type": "short description of the issue",
+  "location": "location or null",
+  "injury_status": "injury, symptoms, condition, or null",
   "severity": "low | medium | high | none",
   "escalation_required": "yes | no",
   "summary": "Concise factual summary of the case note"

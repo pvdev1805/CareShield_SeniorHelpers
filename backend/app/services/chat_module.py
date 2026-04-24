@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date
 import json
 from langdetect import detect_langs, DetectorFactory, LangDetectException
 
@@ -157,7 +157,7 @@ def final_extraction(case_record: dict) -> dict:
     print("FINAL TEXT SENT TO extract_data():")
     print(repr(final_text))
 
-    structured_output = extract_data(final_text)
+    structured_output = extract_data(final_text, current_date=date.today().isoformat())
 
     print("RAW extract_data() OUTPUT:")
     print(structured_output)
