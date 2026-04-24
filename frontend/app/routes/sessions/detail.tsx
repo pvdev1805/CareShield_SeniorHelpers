@@ -1,0 +1,272 @@
+import { nanoid } from 'nanoid'
+import { useEffect, useState } from 'react'
+import { useNavigate, useParams } from 'react-router'
+import ChatHeader from '~/components/chats/ChatHeader'
+import ChatInput from '~/components/chats/ChatInput'
+import ChatMessages from '~/components/chats/ChatMessages'
+import type { ChatMessage } from '~/types/chat'
+import { getMessages, sendMessage, generateCaseNote, API_BASE_URL } from '~/lib/api'
+
+const SessionDetailPage = () => {
+  const { id: sessionId } = useParams()
+  const navigate = useNavigate()
+  const [messages, setMessages] = useState<ChatMessage[]>([])
+  const [isRecording, setIsRecording] = useState(false)
+  const [isUploading, setIsUploading] = useState(false)
+  const [isGeneratingNote, setIsGeneratingNote] = useState(false)
+  const [isAwaitingResponse, setIsAwaitingResponse] = useState(false)
+  const [sessionTitle, setSessionTitle] = useState('Chat Session')
+
+  // Fetch existing messages when the page loads
+  useEffect(() => {
+    const fetchSessionMessages = async () => {
+      if (!sessionId) return
+
+      try {
+        const data = await getMessages(Number(sessionId))
+
+        // Map backend messages to frontend format
+        const mappedMessages: ChatMessage[] = data.map((msg: any) => ({
+          id: msg.id.toString(),
+          sender: msg.message_sender_role === 'assistant' ? 'ai' : 'user',
+          text: msg.content
+        }))
+
+        setMessages(mappedMessages)
+
+        // Set session title based on first message (kept for internal use if needed)
+        if (mappedMessages.length > 0 && mappedMessages[0]?.text) {
+          setSessionTitle(mappedMessages[0].text.slice(0, 50))
+        }
+      } catch (error) {
+        console.error('Error fetching session messages:', error)
+      }
+    }
+
+    fetchSessionMessages()
+  }, [sessionId])
+
+  // Send text message to backend and handle automatic case note generation
+  const handleSend = async (text: string) => {
+    if (!sessionId || isGeneratingNote || isAwaitingResponse) return
+
+    setIsAwaitingResponse(true)
+
+    // Add user message immediately
+    const userMessage: ChatMessage = {
+      id: nanoid(),
+      sender: 'user',
+      text
+    }
+
+    const typingId = nanoid()
+
+    setMessages((prev) => [
+      ...prev,
+      userMessage,
+      {
+        id: typingId,
+        sender: 'ai',
+        status: 'typing'
+      }
+    ])
+
+    try {
+      const reply = await sendMessage(Number(sessionId), text)
+
+      // Replace typing indicator with real AI response
+      if (reply.assistant_message) {
+        setMessages((prev) =>
+          prev
+            .filter((msg) => msg.id !== typingId)
+            .concat({
+              id: reply.assistant_message.id.toString(),
+              sender: 'ai',
+              text: reply.assistant_message.content
+            })
+        )
+      }
+
+      if (reply.note_ready) {
+        setIsGeneratingNote(true)
+
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: nanoid(),
+            sender: 'ai',
+            text: 'All required information has been collected. Generating case note...'
+          }
+        ])
+
+        try {
+          const caseNote = await generateCaseNote(Number(sessionId))
+
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: nanoid(),
+              sender: 'ai',
+              text: 'Case note generated successfully. Redirecting...'
+            }
+          ])
+
+          setTimeout(() => {
+            navigate(`/case-notes/${caseNote.id}`)
+          }, 1200)
+        } catch (error) {
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: nanoid(),
+              sender: 'ai',
+              text: 'There was an error generating the case note. Please try again.'
+            }
+          ])
+        } finally {
+          setIsGeneratingNote(false)
+          setIsAwaitingResponse(false)
+        }
+      }
+    } catch (error) {
+      console.error('Error sending message:', error)
+      setMessages((prev) => prev.filter((msg) => msg.id !== typingId))
+    } finally {
+      setIsAwaitingResponse(false)
+    }
+  }
+
+  // Audio handling
+  const handleSendAudio = async (audioBlob: Blob) => {
+    if (!sessionId || isGeneratingNote || isAwaitingResponse) return
+
+    setIsAwaitingResponse(true)
+
+    const tempId = nanoid()
+    const typingId = nanoid()
+
+    setMessages((msgs) => [
+      ...msgs,
+      { id: tempId, sender: 'user', status: 'uploading' },
+      { id: typingId, sender: 'ai', status: 'typing' }
+    ])
+
+    setIsUploading(true)
+
+    try {
+      const formData = new FormData()
+      formData.append('audio', audioBlob, 'recording.webm')
+
+      const response = await fetch(`${API_BASE_URL}/chat-session/${sessionId}/message/audio`, {
+        method: 'POST',
+        body: formData
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to send audio message')
+      }
+
+      const reply = await response.json()
+
+      // Replace uploading + typing with real messages
+      setMessages((msgs) =>
+        msgs
+          .filter((msg) => msg.id !== tempId && msg.id !== typingId)
+          .concat(
+            [
+              {
+                id: reply.user_message.id.toString(),
+                sender: 'user',
+                text: reply.user_message.content
+              },
+              reply.assistant_message && {
+                id: reply.assistant_message.id.toString(),
+                sender: 'ai',
+                text: reply.assistant_message.content
+              }
+            ].filter(Boolean)
+          )
+      )
+
+      if (reply.note_ready) {
+        setIsGeneratingNote(true)
+
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: nanoid(),
+            sender: 'ai',
+            text: 'All required information has been collected. Generating case note...'
+          }
+        ])
+
+        const caseNote = await generateCaseNote(Number(sessionId))
+
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: nanoid(),
+            sender: 'ai',
+            text: 'Case note generated successfully. Redirecting...'
+          }
+        ])
+
+        setTimeout(() => {
+          navigate(`/case-notes/${caseNote.id}`)
+        }, 1200)
+
+        setIsGeneratingNote(false)
+      }
+    } catch (error) {
+      console.error('Error uploading audio:', error)
+
+      setMessages((msgs) =>
+        msgs
+          .filter((msg) => msg.id !== tempId && msg.id !== typingId)
+          .concat({
+            id: nanoid(),
+            sender: 'ai',
+            text: 'There was an error processing the audio. Please try again.'
+          })
+      )
+    } finally {
+      setIsUploading(false)
+      setIsAwaitingResponse(false)
+    }
+  }
+
+  // Handle recording state changes to show "Recording..." message
+  const handleRecordingStateChange = (recording: boolean) => {
+    setIsRecording(recording)
+    if (recording) {
+      setMessages((msgs) => [
+        ...msgs,
+        {
+          id: nanoid(),
+          sender: 'user',
+          status: 'recording'
+        }
+      ])
+    } else {
+      setMessages((msgs) => msgs.filter((msg) => !(msg.sender === 'user' && msg.status === 'recording')))
+    }
+  }
+
+  return (
+    <div className='flex flex-col h-[calc(100vh-56px)] bg-gray-100'>
+      <ChatHeader />
+
+      <ChatMessages messages={messages} />
+
+      <ChatInput
+        onSend={handleSend}
+        onSendAudio={handleSendAudio}
+        onRecordingStateChange={handleRecordingStateChange}
+        isUploading={isUploading || isGeneratingNote || isAwaitingResponse}
+        isRecording={isRecording}
+      />
+    </div>
+  )
+}
+
+export default SessionDetailPage

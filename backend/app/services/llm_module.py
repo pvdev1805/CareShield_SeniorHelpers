@@ -1,11 +1,17 @@
 import requests
 import json
+from app.core.config import settings
 
-OLLAMA_URL = "http://localhost:11434/api/generate"
-MODEL_NAME = "qwen2.5:32b"
+OLLAMA_URL = settings.ollama_url
+MODEL_NAME = settings.ollama_model
 
 # Send a prompt to Ollama API and return the response.
 def llm_request(prompt):
+    print("\n --- LLM REQUEST ---")
+    print("model:", MODEL_NAME)
+    print("URL:", OLLAMA_URL)
+    print("PROMPT\n")
+    print(prompt[:1000])
     
     response = requests.post(
         OLLAMA_URL,
@@ -67,7 +73,7 @@ Determine whether additional information is required to complete a compliant cas
 ONLY ask a follow-up question if essential information is missing.
 
 Strict Instructions:
-- You only need enough information to classify the following:
+- You ONLY need enough information to classify the following:
     Reporting Type:
     - incident
     - feedback_complaint
@@ -79,9 +85,6 @@ Strict Instructions:
     - administrative
     - other
 
-    Severity Level:
-    - high, medium, low, none
-
 - Only ask ONE question at a time.
 - Do NOT ask a question if all information can be reasonably classified - return an empty response.
 - Limit the number of questions you ask, preferably to NO MORE than TWO QUESTIONS.
@@ -90,6 +93,7 @@ Strict Instructions:
 - Do NOT ask unnecessary clarifying questions.
 - Do NOT ask follow up questions if enough information has been collected for a case note.
 - If the user replies with a one word response (ie. 'yes' or 'no'), you should not ask a follow up question.
+- Do NOT ask about formal documentation or reports. Assume the user is CURRENTLY lodging a formal report.
 
 Guidelines:
 - If no harm is mentioned, assume severity is NONE.

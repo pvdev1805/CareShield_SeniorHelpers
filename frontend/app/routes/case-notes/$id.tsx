@@ -1,0 +1,226 @@
+import { useEffect, useState } from 'react';
+import { useParams } from 'react-router';
+import { getCaseNote } from '~/lib/api';
+
+type ConversationEntry = {
+  role: string;
+  timestamp: string;
+  message: string;
+  translated_message?: string;
+  original_language?: string;
+  was_translated?: boolean;
+  input_type?: string;   // Added
+};
+
+type CaseNote = {
+  id: number;
+  chat_session_id: number;
+  original_text: string;
+  original_language: string;
+  english_translation: string;
+  incident_occurred: boolean;
+  incident_time: string | null;
+  incident_type: string;
+  location: string | null;
+  injury_status: string | null;
+  summary: string;
+  metadata_json: {
+    conversation_log: ConversationEntry[];
+    languages?: string[];
+    severity?: string;
+    escalation_required?: string;
+    report_type?: string;
+    category?: string;
+    last_updated?: string;
+  };
+  reported_timestamp: string;
+};
+
+const formatDate = (timestamp?: string | null) => {
+  if (!timestamp) return 'N/A';
+  const date = new Date(timestamp);
+  return isNaN(date.getTime()) ? timestamp : date.toLocaleString();
+};
+
+const CaseNoteDetailPage = () => {
+  const { id } = useParams();
+  const [caseNote, setCaseNote] = useState<CaseNote | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!id) return;
+
+    const fetchCaseNote = async () => {
+      try {
+        const data = await getCaseNote(Number(id));
+        setCaseNote(data);
+      } catch (err) {
+        console.error(err);
+        setError('Failed to load case note.');
+      }
+    };
+
+    fetchCaseNote();
+  }, [id]);
+
+  if (error) {
+    return (
+      <div className="flex flex-col h-[calc(100vh-56px)] bg-gray-100">
+        <div className="max-w-4xl mx-auto mt-8 w-full">
+          <div className="bg-white p-6 rounded-lg shadow border border-red-200 text-red-600">
+            {error}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!caseNote) {
+    return (
+      <div className="flex flex-col h-[calc(100vh-56px)] bg-gray-100">
+        <div className="max-w-4xl mx-auto mt-8 w-full text-gray-500">
+          Loading case note...
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col h-[calc(100vh-56px)] bg-gray-100">
+      <div className="max-w-4xl mx-auto mt-8 w-full space-y-6">
+        {/* Header */}
+        <div>
+          <h1 className="text-3xl font-bold text-(--primary-color)">
+            Case Note #{caseNote.id}
+          </h1>
+          <p className="text-sm text-gray-500">
+            Reported: {formatDate(caseNote.reported_timestamp)}
+          </p>
+        </div>
+
+        {/* Summary */}
+        <section className="bg-white p-5 rounded-lg shadow transition-all duration-200 border border-transparent">
+          <h2 className="text-xl font-semibold text-purple-700 mb-2">Summary</h2>
+          <p className="text-gray-800">{caseNote.summary}</p>
+        </section>
+
+        {/* Report Details */}
+        <section className="bg-white p-5 rounded-lg shadow transition-all duration-200 border border-transparent">
+          <h2 className="text-xl font-semibold text-purple-700 mb-4">
+            Report Details
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-800">
+            <div>
+              <span className="font-semibold text-gray-600">Report Type:</span>{' '}
+              {caseNote.incident_type || 'N/A'}
+            </div>            
+            <div>
+              <span className="font-semibold text-gray-600">Incident Occurred:</span>{' '}
+              {caseNote.incident_occurred ? 'Yes' : 'No'}
+            </div>
+
+            <div>
+              <span className="font-semibold text-gray-600">Incident Time:</span>{' '}
+              {formatDate(caseNote.incident_time)}
+            </div>
+            <div>
+              <span className="font-semibold text-gray-600">Location:</span>{' '}
+              {caseNote.location || 'N/A'}
+            </div>
+            <div>
+              <span className="font-semibold text-gray-600">Injury Status:</span>{' '}
+              {caseNote.injury_status || 'N/A'}
+            </div>
+            <div>
+              <span className="font-semibold text-gray-600">Languages:</span>{' '}
+              {caseNote.metadata_json?.languages?.join(', ') || 'N/A'}
+            </div>
+            <div>
+              <span className="font-semibold text-gray-600">Severity:</span>{' '}
+              {caseNote.metadata_json?.severity || 'N/A'}
+            </div>
+            <div>
+              <span className="font-semibold text-gray-600">Escalation Required:</span>{' '}
+              {caseNote.metadata_json?.escalation_required || 'N/A'}
+            </div>
+          </div>
+        </section>
+
+        {/* Original Text */}
+        <section className="bg-white p-5 rounded-lg shadow transition-all duration-200 border border-transparent">
+          <h2 className="text-xl font-semibold text-purple-700 mb-2">
+            Original Text
+          </h2>
+          <p className="whitespace-pre-wrap text-gray-800">
+            {caseNote.original_text}
+          </p>
+        </section>
+
+        {/* English Translation */}
+        {caseNote.english_translation && (
+          <section className="bg-white p-5 rounded-lg shadow transition-all duration-200 border border-transparent">
+            <h2 className="text-xl font-semibold text-purple-700 mb-2">
+              English Translation
+            </h2>
+            <p className="whitespace-pre-wrap text-gray-800">
+              {caseNote.english_translation}
+            </p>
+          </section>
+        )}
+
+        {/* Conversation Log */}
+        {caseNote.metadata_json?.conversation_log?.length > 0 && (
+          <section className="bg-white p-5 rounded-lg shadow transition-all duration-200 border border-transparent">
+            <h2 className="text-xl font-semibold text-purple-700 mb-4">
+              Conversation Log
+            </h2>
+            <div className="space-y-3">
+              {caseNote.metadata_json.conversation_log.map((entry, index) => (
+                <div
+                  key={index}
+                  className="border rounded-lg p-4 bg-gray-50 transition-all duration-200"
+                >
+                  <div className="text-xs text-gray-500 mb-1">
+                    {entry.role.toUpperCase()} • {formatDate(entry.timestamp)}
+                  </div>
+
+                  {/* Original Message */}
+                  <div className="text-gray-800 whitespace-pre-wrap">
+                    {entry.message}
+                  </div>
+
+                  {/* Metadata Line (Audio / Translation Info) */}
+                  {(entry.input_type === "audio" || entry.was_translated) && (
+                    <div className="text-xs text-gray-400 italic mt-1">
+                      {entry.input_type === "audio" && (
+                        <>
+                          Transcribed from audio
+                          {entry.original_language &&
+                            ` (Detected: ${entry.original_language.toUpperCase()})`}
+                        </>
+                      )}
+
+                      {entry.input_type === "audio" && entry.was_translated && " • "}
+
+                      {entry.was_translated && entry.original_language &&
+                        `Translated from ${entry.original_language.toUpperCase()}`}
+                    </div>
+                  )}
+
+                  {/* Translated Message */}
+                  {entry.translated_message && (
+                    <div className="text-gray-600 italic mt-2 whitespace-pre-wrap border-l-4 border-purple-300 pl-3">
+                      {entry.translated_message}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default CaseNoteDetailPage;
