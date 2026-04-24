@@ -129,6 +129,10 @@ const CaseNoteDetailPage = () => {
             </div>
 
             <div>
+              <span className='font-semibold text-gray-600'>Category:</span> {caseNote.metadata_json?.category || 'N/A'}
+            </div>
+
+            <div>
               <span className='font-semibold text-gray-600'>Incident Date:</span>{' '}
               {formatDateOnly(caseNote.incident_date)}
             </div>

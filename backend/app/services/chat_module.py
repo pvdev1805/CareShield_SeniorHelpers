@@ -162,6 +162,15 @@ def final_extraction(case_record: dict) -> dict:
     print("RAW extract_data() OUTPUT:")
     print(structured_output)
 
+    if structured_output.startswith("```json"):
+        structured_output = structured_output.replace("```json", "", 1).strip()
+
+    if structured_output.startswith("```"):
+        structured_output = structured_output.replace("```", "", 1).strip()
+
+    if structured_output.endswith("```"):
+        structured_output = structured_output[:-3].strip()
+
     # Parse JSON from LLM
     try:
         structured_data = json.loads(structured_output)
@@ -172,6 +181,12 @@ def final_extraction(case_record: dict) -> dict:
         structured_data = {
             "report_type": "unknown",
             "category": "unknown",
+            "incident_occurred": None,
+            "incident_date": None,
+            "incident_time": None,
+            "incident_type": None,
+            "location": None,
+            "injury_status": None,
             "severity": "unknown",
             "escalation_required": "unknown",
             "summary": final_text,
@@ -191,6 +206,12 @@ def final_extraction(case_record: dict) -> dict:
             "status": "escalated" if escalation == "yes" else "in_progress",
             "report_type": structured_data.get("report_type") or "unknown",
             "category": structured_data.get("category") or "unknown",
+            "incident_occurred": structured_data.get("incident_occurred"),
+            "incident_date": structured_data.get("incident_date"),
+            "incident_time": structured_data.get("incident_time"),
+            "incident_type": structured_data.get("incident_type"),
+            "location": structured_data.get("location"),
+            "injury_status": structured_data.get("injury_status"),
             "severity": structured_data.get("severity") or "unknown",
             "escalation_required": escalation,
             "summary": structured_data.get("summary") or final_text,

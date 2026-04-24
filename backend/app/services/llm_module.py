@@ -21,7 +21,7 @@ def llm_request(prompt):
             "stream": False,
             "options": {
                 "temperature": 0.1,
-                "num_predict": 150
+                "num_predict": 500
             }
         },
         timeout=180
