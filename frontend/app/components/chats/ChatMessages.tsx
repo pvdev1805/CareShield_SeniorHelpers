@@ -23,11 +23,15 @@ const ChatMessages = ({ messages }: ChatMessagesProps) => {
   let currentGroup: ChatMessage[] = []
 
   normalMessages.forEach((msg) => {
+    const previous = currentGroup[currentGroup.length - 1]
+
     if (
       currentGroup.length === 0 ||
       (msg.sender === currentGroup[0].sender &&
         !msg.status &&
-        !currentGroup[currentGroup.length - 1].status)
+        !msg.structuredOutput &&
+        !previous.status &&
+        !previous.structuredOutput)
     ) {
       currentGroup.push(msg)
     } else {
@@ -46,12 +50,12 @@ const ChatMessages = ({ messages }: ChatMessagesProps) => {
 
       {/* Typing Indicator when AI is thinking*/}
       {typingMessage && (
-        <div className="flex justify-start">
-          <div className="bg-gray-200 text-gray-700 rounded-2xl px-4 py-3 max-w-xs">
-            <div className="flex space-x-1">
-              <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" />
-              <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce [animation-delay:150ms]" />
-              <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce [animation-delay:300ms]" />
+        <div className='flex justify-start'>
+          <div className='bg-gray-200 text-gray-700 rounded-2xl px-4 py-3 max-w-xs'>
+            <div className='flex space-x-1'>
+              <span className='w-2 h-2 bg-gray-400 rounded-full animate-bounce' />
+              <span className='w-2 h-2 bg-gray-400 rounded-full animate-bounce [animation-delay:150ms]' />
+              <span className='w-2 h-2 bg-gray-400 rounded-full animate-bounce [animation-delay:300ms]' />
             </div>
           </div>
         </div>

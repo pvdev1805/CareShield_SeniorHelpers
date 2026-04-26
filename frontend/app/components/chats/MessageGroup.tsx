@@ -4,10 +4,11 @@ import Avatar from './Avatar'
 import userAvatar from '~/assets/images/avatar.png'
 import aiAvatar from '~/assets/images/avatar-ai.svg'
 
-import type { Message } from '~/types/chat'
+import type { ChatMessage } from '~/types/chat'
+import IncidentSummaryCard from './IncidentSummaryCard'
 
 interface MessageGroupProps {
-  group: Message[]
+  group: ChatMessage[]
 }
 
 const MessageGroup = ({ group }: MessageGroupProps) => {
@@ -24,7 +25,9 @@ const MessageGroup = ({ group }: MessageGroupProps) => {
             {/* Display avatar for the first message in the group */}
             {isFirst && !isUser && <Avatar src={avatarSrc} alt={avatarAlt} className='mr-2' />}
             <div className={isFirst ? '' : isUser ? 'mr-10' : 'ml-10'}>
-              {msg.status ? (
+              {msg.structuredOutput ? (
+                <IncidentSummaryCard summary={msg.structuredOutput} />
+              ) : msg.status ? (
                 <StatusBubble status={msg.status} />
               ) : (
                 <MessageBubble text={msg.text || ''} sender={msg.sender} />

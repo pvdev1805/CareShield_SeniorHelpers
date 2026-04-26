@@ -53,6 +53,15 @@ export async function getCaseNote(id: number) {
   return res.json()
 }
 
+export async function getCaseNoteBySession(sessionId: string | number) {
+  const res = await fetch(`${API_BASE_URL}/case-notes/by-session/${sessionId}`)
+  if (res.status === 404) {
+    return null // No case note for this session yet
+  }
+  if (!res.ok) throw new Error('Failed to fetch case note for session')
+  return res.json()
+}
+
 export async function startChatSession(content: string): Promise<StartChatSessionResponse> {
   const res = await fetch(`${API_BASE_URL}/chat-session/start`, {
     method: 'POST',

@@ -1,41 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router'
 import { getCaseNote } from '~/lib/api'
-
-type ConversationEntry = {
-  role: string
-  timestamp: string
-  message: string
-  translated_message?: string
-  original_language?: string
-  was_translated?: boolean
-  input_type?: string // Added
-}
-
-type CaseNote = {
-  id: number
-  chat_session_id: number
-  original_text: string
-  original_language: string
-  english_translation: string
-  incident_occurred: boolean
-  incident_date: string | null
-  incident_time: string | null
-  incident_type: string
-  location: string | null
-  injury_status: string | null
-  summary: string
-  metadata_json: {
-    conversation_log: ConversationEntry[]
-    languages?: string[]
-    severity?: string
-    escalation_required?: string
-    report_type?: string
-    category?: string
-    last_updated?: string
-  }
-  reported_timestamp: string
-}
+import type { CaseNote } from '~/types/case-note'
 
 const formatDateTime = (timestamp?: string | null) => {
   if (!timestamp) return 'N/A'
@@ -99,6 +65,8 @@ const CaseNoteDetailPage = () => {
       </div>
     )
   }
+
+  const conversationLog = caseNote.metadata_json?.conversation_log
 
   return (
     <div className='flex flex-col h-[calc(100vh-56px)] bg-gray-100'>
@@ -176,11 +144,11 @@ const CaseNoteDetailPage = () => {
         )}
 
         {/* Conversation Log */}
-        {caseNote.metadata_json?.conversation_log?.length > 0 && (
+        {conversationLog && conversationLog.length > 0 && (
           <section className='bg-white p-5 rounded-lg shadow transition-all duration-200 border border-transparent'>
             <h2 className='text-xl font-semibold text-purple-700 mb-4'>Conversation Log</h2>
             <div className='space-y-3'>
-              {caseNote.metadata_json.conversation_log.map((entry, index) => (
+              {conversationLog.map((entry, index) => (
                 <div key={index} className='border rounded-lg p-4 bg-gray-50 transition-all duration-200'>
                   <div className='text-xs text-gray-500 mb-1'>
                     {entry.role.toUpperCase()} • {formatDateTime(entry.timestamp)}
