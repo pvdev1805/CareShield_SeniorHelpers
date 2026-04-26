@@ -74,6 +74,17 @@ def parse_time(value):
 def list_case_notes(db: Session = Depends(get_db)):
     return db.query(CaseNote).order_by(CaseNote.id.desc()).all()
 
+@router.get("/by-session/{session_id}", response_model=CaseNoteResponse)
+def get_case_note_by_session(session_id: int, db: Session = Depends(get_db)):
+    case_note = (
+        db.query(CaseNote)
+        .filter(CaseNote.chat_session_id == session_id)
+        .first()
+    )
+    if not case_note:
+        raise HTTPException(status_code=404, detail="Case note not found for this session")
+    
+    return case_note
 
 @router.get("/{case_note_id}", response_model=CaseNoteResponse)
 def get_case_note(case_note_id: int, db: Session = Depends(get_db)):

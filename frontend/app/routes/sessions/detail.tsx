@@ -64,7 +64,7 @@ const SessionDetailPage = () => {
 
         if (existingCaseNote) {
           const caseNoteCard = createCaseNoteCardMessage(existingCaseNote)
-          setMessages([...mappedMessages.filter((msg) => msg.id !== caseNoteCard.id), caseNoteCard])
+          setMessages([...mappedMessages, caseNoteCard])
         } else {
           setMessages(mappedMessages)
         }

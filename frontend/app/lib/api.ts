@@ -56,6 +56,10 @@ export async function getCaseNote(id: number) {
 export async function getCaseNoteBySession(sessionId: string | number) {
   const res = await fetch(`${API_BASE_URL}/case-notes/by-session/${sessionId}`)
 
+  if (res.status === 404) {
+    return null // No case note for this session, but that's not an error
+  }
+
   if (!res.ok) throw new Error('Failed to fetch case note for session')
   return res.json()
 }
