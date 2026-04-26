@@ -63,7 +63,8 @@ const SessionDetailPage = () => {
         const existingCaseNote = await getCaseNoteBySession(Number(sessionId))
 
         if (existingCaseNote) {
-          setMessages([...mappedMessages, createCaseNoteCardMessage(existingCaseNote)])
+          const caseNoteCard = createCaseNoteCardMessage(existingCaseNote)
+          setMessages([...mappedMessages.filter((msg) => msg.id !== caseNoteCard.id), caseNoteCard])
         } else {
           setMessages(mappedMessages)
         }
