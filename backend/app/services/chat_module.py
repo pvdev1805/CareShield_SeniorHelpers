@@ -172,7 +172,7 @@ def generate_assistant_reply(case_record: dict) -> tuple[str, dict]:
     Generate the assistant's follow-up question based on conversation history.
     Returns an empty string if no further questions are required.
     """
-    conversation_log = case_record.get("conversation_log", [])
+    conversation_log = case_record["conversation_log"]
 
     previous_questions = get_previous_assistant_questions(conversation_log)
 
