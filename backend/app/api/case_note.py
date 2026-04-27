@@ -1,3 +1,4 @@
+from backend.app.services.email_module import send_case_note_notification_email
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from datetime import datetime, date, time
@@ -211,5 +212,7 @@ def generate_case_note(session_id: int, db: Session = Depends(get_db)):
     session.ended_at = datetime.now()
     db.commit()
     db.refresh(case_note)
+
+    send_case_note_notification_email(case_note)
 
     return case_note
