@@ -8,7 +8,19 @@ from app.services.llm_module import (translate_and_detect_language,extract_data,
 # Langdetect seed
 DetectorFactory.seed = 0
 
-
+# Termination keywords to identify when no further information is needed
+TERMINATION_KEYWORDS = [
+    "no further action required",
+    "no more information needed",
+    "no further information required",
+    "no further info",
+    "end the conversation",
+    "end conversation",
+    "end case note",
+    "nothing else to report",
+    "please generate case note",
+    "generate case note"
+]
 
 # Utility Functions
 
@@ -39,7 +51,56 @@ def conversation_history(conversation_log: list[dict]) -> str:
         text += f"{entry['role']}: {entry['message']}\n"
     return text.strip()
 
+# Termination Check
 
+def is_termination_message(message: str) -> bool:
+    """Check if the message contains any termination keywords."""
+    if not message:
+        return False
+
+    normalized = message.strip().lower()
+    return any(keyword in normalized for keyword in TERMINATION_KEYWORDS)
+
+def get_previous_assistant_questions(conversation_log: list[dict]) -> list[str]:
+    """Extract previous assistant questions from the conversation log."""
+    results = []
+    for entry in conversation_log:
+        role = entry.get("role")
+        message = entry.get("message", "").strip()
+        if role == "assistant" and message.endswith("?"):
+            results.append(message)
+
+    return results
+
+def normalize_question(question: str) -> str:
+    """Normalize a question by removing punctuation and common polite phrases."""
+    return (
+        question.lower()
+        .replace("?", "")
+        .replace(".", "")
+        .replace(",", "")
+        .replace("please", "")
+        .replace("could you", "")
+        .replace("can you", "")
+        .strip()
+    )
+
+def is_repeated_question(new_question: str, previous_questions: list[str]) -> bool:
+    if not new_question:
+        return False
+
+    normalized_new = normalize_question(new_question)
+
+    for old_question in previous_questions:
+        normalized_old = normalize_question(old_question)
+
+        if normalized_new == normalized_old:
+            return True
+
+        if normalized_new in normalized_old or normalized_old in normalized_new:
+            return True
+
+    return False
 
 # Core Conversation Functions
 
@@ -111,7 +172,16 @@ def generate_assistant_reply(case_record: dict) -> tuple[str, dict]:
     Generate the assistant's follow-up question based on conversation history.
     Returns an empty string if no further questions are required.
     """
-    history = conversation_history(case_record["conversation_log"])
+    conversation_log = case_record["conversation_log"]
+
+    previous_questions = get_previous_assistant_questions(conversation_log)
+
+    # Hard stop: DO NOT ask more than 2 follow-up questions to avoid overwhelming the user
+    # This prevents endless conversation loops
+    if len(previous_questions) >= 2:
+        return "", case_record
+
+    history = conversation_history(conversation_log)
     follow_up = generate_follow_up_questions(history)
 
     if not follow_up:
@@ -121,6 +191,10 @@ def generate_assistant_reply(case_record: dict) -> tuple[str, dict]:
 
     # Validate that it is a proper question
     if not follow_up.endswith("?") or len(follow_up) < 5:
+        return "", case_record
+
+    # Prevent repeated or nearly identical questions which can frustrate users
+    if is_repeated_question(follow_up, previous_questions):
         return "", case_record
 
     assistant_entry = {
