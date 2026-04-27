@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from datetime import datetime, date
+from datetime import datetime, date, time
+import re
 
 from app.db.base import get_db
 from app.db.tables import ChatSession, Message, CaseNote
@@ -9,11 +10,81 @@ from app.services.chat_module import final_extraction
 
 router = APIRouter(prefix="/case-notes", tags=["case-notes"])
 
+def parse_bool(value, default=False) -> bool:
+    if isinstance(value, bool):
+        return value
+    if value is None:
+        return default
+    
+    text = str(value).strip().lower()
+
+    if text in {"true", "yes", "y", "1"}:
+        return True
+    
+    if text in {"false", "no", "n", "0"}:
+        return False
+    
+    return default
+
+def parse_date(value):
+    if not value:
+        return None
+    
+    text = str(value).strip().lower()
+
+    if text == "today":
+        return date.today()
+    
+    try:
+        return date.fromisoformat(text)
+    except ValueError:
+        return None
+    
+def parse_time(value):
+    if not value:
+        return None
+    
+    text = str(value).strip().lower()
+
+    # Remove approximate qualifiers
+    text = text.replace("approximately", "").replace("approx.", "").replace("around", "").replace("about", "").strip()
+
+    # Match 24-hour time formats (e.g. "14:30", "10:00")
+    match = re.search(r"\b([01]?\d|2[0-3]):([0-5]\d)\b", text)
+    if match:
+        hour = int(match.group(1))
+        minute = int(match.group(2))
+        return time(hour=hour, minute=minute)
+    
+    # Match 12-hour time formats (e.g. "3 PM", "10 AM")
+    match = re.search(r"\b(1[0-2]|0?[1-9])\s*(am|pm)\b", text)
+    if match:
+        hour = int(match.group(1))
+        meridiem = match.group(2)
+        if meridiem == "pm" and hour != 12:
+            hour += 12
+        elif meridiem == "am" and hour == 12:
+            hour = 0
+        return time(hour=hour, minute=0)
+    
+    return None
+
 
 @router.get("", response_model=list[CaseNoteResponse])
 def list_case_notes(db: Session = Depends(get_db)):
     return db.query(CaseNote).order_by(CaseNote.id.desc()).all()
 
+@router.get("/by-session/{session_id}", response_model=CaseNoteResponse)
+def get_case_note_by_session(session_id: int, db: Session = Depends(get_db)):
+    case_note = (
+        db.query(CaseNote)
+        .filter(CaseNote.chat_session_id == session_id)
+        .first()
+    )
+    if not case_note:
+        raise HTTPException(status_code=404, detail="Case note not found for this session")
+    
+    return case_note
 
 @router.get("/{case_note_id}", response_model=CaseNoteResponse)
 def get_case_note(case_note_id: int, db: Session = Depends(get_db)):
@@ -102,21 +173,37 @@ def generate_case_note(session_id: int, db: Session = Depends(get_db)):
         else "en"
     )
 
+    report_type = final_case.get("report_type") or "case_note"
+    category = final_case.get("category") or "other"
+
+    incident_occurred = parse_bool(
+        final_case.get("incident_occurred"),
+        default=(report_type == "incident")
+    )
+
+    incident_date = parse_date(final_case.get("incident_date"))
+    incident_time = parse_time(final_case.get("incident_time"))
+    incident_type = final_case.get("incident_type") or category
+    location = final_case.get("location")
+    injury_status = final_case.get("injury_status")
+    summary = final_case.get("summary") or case_record["full_original_text"]
+    reported_timestamp = datetime.now()
+
     case_note = CaseNote(
         chat_session_id=session_id,
         user_id=session.user_id,
         original_text=case_record["full_original_text"],
         original_language=primary_language,
         english_translation=case_record["full_translated_text"],
-        incident_occurred=final_case.get("report_type") == "incident",
-        incident_date=date.today(),
-        incident_time=datetime.now().time(),
-        incident_type=final_case.get("category") or "unknown",
-        location=None,
-        injury_status=None,
-        summary=final_case.get("summary") or case_record["full_original_text"],
+        incident_occurred=incident_occurred,
+        incident_date=incident_date,
+        incident_time=incident_time,
+        incident_type=incident_type,
+        location=location,
+        injury_status=injury_status,
+        summary=summary,
         metadata_json=final_case,
-        reported_timestamp=datetime.now(),
+        reported_timestamp=reported_timestamp,
     )
     
     db.add(case_note)

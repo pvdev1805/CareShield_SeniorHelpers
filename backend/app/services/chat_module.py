@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date
 import json
 from langdetect import detect_langs, DetectorFactory, LangDetectException
 
@@ -157,10 +157,19 @@ def final_extraction(case_record: dict) -> dict:
     print("FINAL TEXT SENT TO extract_data():")
     print(repr(final_text))
 
-    structured_output = extract_data(final_text)
+    structured_output = extract_data(final_text, current_date=date.today().isoformat())
 
     print("RAW extract_data() OUTPUT:")
     print(structured_output)
+
+    if structured_output.startswith("```json"):
+        structured_output = structured_output.replace("```json", "", 1).strip()
+
+    if structured_output.startswith("```"):
+        structured_output = structured_output.replace("```", "", 1).strip()
+
+    if structured_output.endswith("```"):
+        structured_output = structured_output[:-3].strip()
 
     # Parse JSON from LLM
     try:
@@ -172,9 +181,16 @@ def final_extraction(case_record: dict) -> dict:
         structured_data = {
             "report_type": "unknown",
             "category": "unknown",
+            "incident_occurred": None,
+            "incident_date": None,
+            "incident_time": None,
+            "incident_type": None,
+            "location": None,
+            "injury_status": None,
             "severity": "unknown",
             "escalation_required": "unknown",
             "summary": final_text,
+            "confidence": 0
         }
 
     escalation = structured_data.get("escalation_required") or "no"
@@ -191,9 +207,16 @@ def final_extraction(case_record: dict) -> dict:
             "status": "escalated" if escalation == "yes" else "in_progress",
             "report_type": structured_data.get("report_type") or "unknown",
             "category": structured_data.get("category") or "unknown",
+            "incident_occurred": structured_data.get("incident_occurred"),
+            "incident_date": structured_data.get("incident_date"),
+            "incident_time": structured_data.get("incident_time"),
+            "incident_type": structured_data.get("incident_type"),
+            "location": structured_data.get("location"),
+            "injury_status": structured_data.get("injury_status"),
             "severity": structured_data.get("severity") or "unknown",
             "escalation_required": escalation,
             "summary": structured_data.get("summary") or final_text,
+            "confidence": structured_data.get("confidence") or 0,
             "last_updated": get_timestamp(),
         }
     )

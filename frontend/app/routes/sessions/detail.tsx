@@ -1,15 +1,51 @@
 import { nanoid } from 'nanoid'
 import { useEffect, useState } from 'react'
-import { useNavigate, useParams } from 'react-router'
+import { useParams } from 'react-router'
 import ChatHeader from '~/components/chats/ChatHeader'
 import ChatInput from '~/components/chats/ChatInput'
 import ChatMessages from '~/components/chats/ChatMessages'
 import type { ChatMessage } from '~/types/chat'
-import { getMessages, sendMessage, generateCaseNote, API_BASE_URL } from '~/lib/api'
+import { getMessages, sendMessage, generateCaseNote, API_BASE_URL, getCaseNoteBySession } from '~/lib/api'
+import type { CaseNote, CaseNoteMetadata } from '~/types/case-note'
+
+const buildIncidentSummary = (caseNote: CaseNote) => {
+  const metadata = caseNote.metadata_json ?? ({} as CaseNoteMetadata)
+
+  const rawConfidence = metadata.confidence
+  const confidence =
+    typeof rawConfidence === 'number'
+      ? rawConfidence
+      : typeof rawConfidence === 'string'
+        ? Number(rawConfidence)
+        : undefined
+
+  return {
+    caseNoteId: caseNote.id,
+    incidentType: caseNote.incident_type || metadata.incident_type || metadata.report_type || 'Case Note',
+
+    details: [
+      caseNote.location ? `Location: ${caseNote.location}` : null,
+      caseNote.injury_status ? `Injury/status: ${caseNote.injury_status}` : null,
+      caseNote.incident_date ? `Date: ${caseNote.incident_date}` : null,
+      caseNote.incident_time ? `Time: ${caseNote.incident_time}` : null,
+      metadata.severity ? `Severity: ${metadata.severity}` : null,
+      metadata.escalation_required ? `Escalation required: ${metadata.escalation_required}` : null
+    ].filter(Boolean) as string[],
+    confidence,
+    createdAt: caseNote.reported_timestamp
+  }
+}
+
+const createCaseNoteCardMessage = (caseNote: CaseNote): ChatMessage => {
+  return {
+    id: `case-note-${caseNote.id}`,
+    sender: 'ai',
+    structuredOutput: buildIncidentSummary(caseNote)
+  }
+}
 
 const SessionDetailPage = () => {
   const { id: sessionId } = useParams()
-  const navigate = useNavigate()
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [isRecording, setIsRecording] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
@@ -32,7 +68,14 @@ const SessionDetailPage = () => {
           text: msg.content
         }))
 
-        setMessages(mappedMessages)
+        const existingCaseNote = await getCaseNoteBySession(Number(sessionId))
+
+        if (existingCaseNote) {
+          const caseNoteCard = createCaseNoteCardMessage(existingCaseNote)
+          setMessages([...mappedMessages, caseNoteCard])
+        } else {
+          setMessages(mappedMessages)
+        }
 
         // Set session title based on first message (kept for internal use if needed)
         if (mappedMessages.length > 0 && mappedMessages[0]?.text) {
@@ -103,18 +146,16 @@ const SessionDetailPage = () => {
           const caseNote = await generateCaseNote(Number(sessionId))
 
           setMessages((prev) => [
-            ...prev,
+            ...prev.filter((msg) => !msg.status && msg.id !== `case-note-${caseNote.id}`),
             {
               id: nanoid(),
               sender: 'ai',
-              text: 'Case note generated successfully. Redirecting...'
-            }
+              text: 'All required information has been collected. The case note has been generated below.'
+            },
+            createCaseNoteCardMessage(caseNote)
           ])
-
-          setTimeout(() => {
-            navigate(`/case-notes/${caseNote.id}`)
-          }, 1200)
         } catch (error) {
+          console.error('Error generating case note:', error)
           setMessages((prev) => [
             ...prev,
             {
@@ -203,17 +244,14 @@ const SessionDetailPage = () => {
         const caseNote = await generateCaseNote(Number(sessionId))
 
         setMessages((prev) => [
-          ...prev,
+          ...prev.filter((msg) => !msg.status && msg.id !== `case-note-${caseNote.id}`),
           {
             id: nanoid(),
             sender: 'ai',
-            text: 'Case note generated successfully. Redirecting...'
-          }
+            text: 'All required information has been collected. The case note has been generated below.'
+          },
+          createCaseNoteCardMessage(caseNote)
         ])
-
-        setTimeout(() => {
-          navigate(`/case-notes/${caseNote.id}`)
-        }, 1200)
 
         setIsGeneratingNote(false)
       }

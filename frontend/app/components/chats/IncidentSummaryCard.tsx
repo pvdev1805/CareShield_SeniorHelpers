@@ -1,35 +1,49 @@
-const IncidentSummaryCard = () => {
+import { Link } from 'react-router'
+import type { IncidentSummary } from '~/types/incident'
+
+type IncidentSummaryCardProps = {
+  summary: IncidentSummary
+}
+
+const IncidentSummaryCard = ({ summary }: IncidentSummaryCardProps) => {
   return (
-    <>
-      <div className='max-w-2xl rounded-xl border bg-(--primary-color) p-4 shadow mb-2'>
-        <div className='flex items-center justify-between mb-2'>
-          <span className='font-semibold text-white'>Structured Output</span>
-          <span className='text-xs bg-green-100 text-green-700 px-2 py-1 rounded'>CONFIDENCE 96.69%</span>
+    <div className='w-full max-w-xl rounded-xl border bg-(--primary-color) p-3 shadow mb-2'>
+      <div className='flex items-center justify-between gap-3 mb-2'>
+        <span className='font-semibold text-white whitespace-nowrap'>Structured Output</span>
+
+        {summary.confidence !== undefined && (
+          <span className='shrink-0 text-xs bg-white text-green-700 px-2 py-1 rounded-full font-semibold'>
+            CONFIDENCE: {summary.confidence}%
+          </span>
+        )}
+      </div>
+
+      <div className='bg-white text-gray-800 p-4 rounded-lg wrap-break-word'>
+        <div className='mb-3'>
+          <div className='text-xs font-semibold text-gray-500 uppercase mb-1'>Incident Type</div>
+          <div className='font-medium text-gray-900'>{summary.incidentType}</div>
         </div>
-        <div className='bg-white text-gray-800 p-4 rounded'>
-          <div className='mb-1 flex flex-col gap-20 md:flex-row md:space-x-4'>
-            <div className='mb-1 rounded'>
-              <b>INCIDENT TYPE:</b> Fall
-            </div>
-            <div className='mb-1 rounded'>
-              <b>PATIENT:</b> Alex Smith
-            </div>
-          </div>
-          <div className='mb-1 rounded'>
-            <b>STATUS:</b> Unconscious, breathing, bleeding from head wound
-          </div>
-          <div className='mb-1 '>
-            <b>Details:</b>
-            <ul className='list-disc ml-5'>
-              <li>Patient was found on the floor by a passerby.</li>
-              <li>Patient is unconscious but breathing.</li>
-              <li>There is visible bleeding from a head wound.</li>
+
+        {summary.details.length > 0 && (
+          <div className='mb-4'>
+            <div className='text-xs font-semibold text-gray-500 uppercase mb-1'>Details</div>
+
+            <ul className='list-disc ml-5 space-y-1 text-sm'>
+              {summary.details.map((detail, index) => (
+                <li key={index}>{detail}</li>
+              ))}
             </ul>
           </div>
-        </div>
-        {/* Add buttons for Confirm, Edit, Save if needed */}
+        )}
+
+        <Link
+          to={`/case-notes/${summary.caseNoteId}`}
+          className='inline-flex w-full items-center justify-center rounded-md bg-purple-700 px-4 py-2 text-sm font-medium text-white hover:bg-purple-800'
+        >
+          View Case Note
+        </Link>
       </div>
-    </>
+    </div>
   )
 }
 

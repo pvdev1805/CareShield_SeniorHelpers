@@ -1,4 +1,4 @@
-from datetime import datetime, time
+from datetime import datetime, date, time
 from pydantic import BaseModel
 
 class CaseNoteResponse(BaseModel):
@@ -8,6 +8,7 @@ class CaseNoteResponse(BaseModel):
     original_language: str
     english_translation: str | None
     incident_occurred: bool
+    incident_date: date | None
     incident_time: time | None
     incident_type: str | None
     location: str | None

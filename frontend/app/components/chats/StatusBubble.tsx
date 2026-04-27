@@ -1,5 +1,5 @@
 interface StatusBubbleProps {
-  status: 'recording' | 'uploading' | 'waiting' | 'error'
+  status: 'recording' | 'uploading' | 'waiting' | 'typing' | 'error'
 }
 
 const statusConfig = {
@@ -17,6 +17,11 @@ const statusConfig = {
     className: 'bg-gray-800 text-white',
     icon: <span className='mr-2 animate-pulse'>...</span>,
     text: 'Waiting for AI response...'
+  },
+  typing: {
+    className: 'bg-white border text-gray-700',
+    icon: <span className='mr-2 animate-pulse'>•••</span>,
+    text: 'AI is structuring your note...'
   },
   error: {
     className: 'bg-red-600 text-white',

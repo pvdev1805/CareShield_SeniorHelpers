@@ -1,7 +1,6 @@
 export interface IncidentSummary {
+  caseNoteId: number
   incidentType: string
-  patient: string
-  status: string
   details: string[]
   confidence?: number
   createdAt?: string

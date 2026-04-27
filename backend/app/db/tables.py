@@ -118,8 +118,8 @@ class CaseNote(Base):
     english_translation: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     incident_occurred: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
-    incident_date : Mapped[date] = mapped_column(Date, default=datetime.now().date())
-    incident_time : Mapped[time] = mapped_column(Time, default=datetime.now().time())
+    incident_date : Mapped[date | None] = mapped_column(Date, nullable=True)
+    incident_time : Mapped[time | None] = mapped_column(Time, nullable=True)
     incident_type: Mapped[str | None] = mapped_column(String(255), nullable=True)
     location: Mapped[str | None] = mapped_column(String(255), nullable=True)
     injury_status: Mapped[str | None] = mapped_column(String(255), nullable=True)
