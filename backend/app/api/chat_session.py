@@ -19,6 +19,7 @@ from app.services.chat_module import (
     generate_assistant_reply,
     detect_text_language,
     translate_and_detect_language,
+    is_termination_message
 )
 
 # Whisper model for transcription
@@ -104,6 +105,16 @@ def build_chat_reply_from_text(
     db.add(user_message)
     db.commit()
     db.refresh(user_message)
+
+    # If the user explicitly wants to end the case note, do not ask the LLM for more questions.
+    if is_termination_message(original_text):
+        return ChatReply(
+            chat_session_id=session_id,
+            user_message=user_message,
+            assistant_message=None,
+            note_ready=True,
+            missing_slots=[],
+        )
 
     # Generate assistant reply
     assistant_text, case_record = generate_assistant_reply(case_record)
