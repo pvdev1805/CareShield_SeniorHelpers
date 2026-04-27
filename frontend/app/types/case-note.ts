@@ -19,7 +19,7 @@ export type CaseNoteMetadata = {
   report_type?: string | null
   category?: string | null
   incident_type?: string | null
-  confidence?: number
+  confidence?: number | null
   last_updated?: string
 }
 

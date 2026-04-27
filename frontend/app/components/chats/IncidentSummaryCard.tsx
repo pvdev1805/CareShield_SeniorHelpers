@@ -7,18 +7,18 @@ type IncidentSummaryCardProps = {
 
 const IncidentSummaryCard = ({ summary }: IncidentSummaryCardProps) => {
   return (
-    <div className='max-w-md rounded-xl border bg-(--primary-color) p-3 shadow mb-2'>
-      <div className='flex items-center justify-between mb-2'>
-        <span className='font-semibold text-white'>Structured Output</span>
+    <div className='w-full max-w-xl rounded-xl border bg-(--primary-color) p-3 shadow mb-2'>
+      <div className='flex items-center justify-between gap-3 mb-2'>
+        <span className='font-semibold text-white whitespace-nowrap'>Structured Output</span>
 
         {summary.confidence !== undefined && (
-          <span className='text-xs bg-white text-green-700 px-2 py-1 rounded-full font-semibold'>
+          <span className='shrink-0 text-xs bg-white text-green-700 px-2 py-1 rounded-full font-semibold'>
             CONFIDENCE: {summary.confidence}%
           </span>
         )}
       </div>
 
-      <div className='bg-white text-gray-800 p-4 rounded-lg'>
+      <div className='bg-white text-gray-800 p-4 rounded-lg wrap-break-word'>
         <div className='mb-3'>
           <div className='text-xs font-semibold text-gray-500 uppercase mb-1'>Incident Type</div>
           <div className='font-medium text-gray-900'>{summary.incidentType}</div>

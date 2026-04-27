@@ -162,6 +162,12 @@ Severity Levels:
 - low
 - none
 
+Confidence:
+- Must be a number from 0 to 100.
+- Represents the LLM's confidence in the accuracy of the extracted information.
+- Use higher confidence when the case note contains clear time, location, symptoms, and outcome.
+- Use lower confidence when the case note is vague, contains ambiguous language, or lacks key details.
+
 Required JSON format:
 {{
   "report_type": "incident | feedback_complaint | case_note",
@@ -174,7 +180,8 @@ Required JSON format:
   "injury_status": "injury, symptoms, condition, or null",
   "severity": "low | medium | high | none",
   "escalation_required": "yes | no",
-  "summary": "Concise factual summary of the case note"
+  "summary": "Concise factual summary of the case note",
+  "confidence": "0-100"
 }}
 
 Case Note:

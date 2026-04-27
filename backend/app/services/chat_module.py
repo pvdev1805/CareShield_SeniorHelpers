@@ -190,6 +190,7 @@ def final_extraction(case_record: dict) -> dict:
             "severity": "unknown",
             "escalation_required": "unknown",
             "summary": final_text,
+            "confidence": 0
         }
 
     escalation = structured_data.get("escalation_required") or "no"
@@ -215,6 +216,7 @@ def final_extraction(case_record: dict) -> dict:
             "severity": structured_data.get("severity") or "unknown",
             "escalation_required": escalation,
             "summary": structured_data.get("summary") or final_text,
+            "confidence": structured_data.get("confidence") or 0,
             "last_updated": get_timestamp(),
         }
     )

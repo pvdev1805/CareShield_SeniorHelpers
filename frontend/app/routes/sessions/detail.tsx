@@ -6,10 +6,18 @@ import ChatInput from '~/components/chats/ChatInput'
 import ChatMessages from '~/components/chats/ChatMessages'
 import type { ChatMessage } from '~/types/chat'
 import { getMessages, sendMessage, generateCaseNote, API_BASE_URL, getCaseNoteBySession } from '~/lib/api'
-import type { CaseNote } from '~/types/case-note'
+import type { CaseNote, CaseNoteMetadata } from '~/types/case-note'
 
 const buildIncidentSummary = (caseNote: CaseNote) => {
-  const metadata = caseNote.metadata_json ?? {}
+  const metadata = caseNote.metadata_json ?? ({} as CaseNoteMetadata)
+
+  const rawConfidence = metadata.confidence
+  const confidence =
+    typeof rawConfidence === 'number'
+      ? rawConfidence
+      : typeof rawConfidence === 'string'
+        ? Number(rawConfidence)
+        : undefined
 
   return {
     caseNoteId: caseNote.id,
@@ -23,7 +31,7 @@ const buildIncidentSummary = (caseNote: CaseNote) => {
       metadata.severity ? `Severity: ${metadata.severity}` : null,
       metadata.escalation_required ? `Escalation required: ${metadata.escalation_required}` : null
     ].filter(Boolean) as string[],
-    confidence: typeof metadata.confidence === 'number' ? metadata.confidence : undefined,
+    confidence,
     createdAt: caseNote.reported_timestamp
   }
 }
