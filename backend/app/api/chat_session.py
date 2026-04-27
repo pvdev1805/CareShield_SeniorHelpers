@@ -108,17 +108,6 @@ def build_chat_reply_from_text(
 
     # If the user explicitly wants to end the case note, do not ask the LLM for more questions.
     if is_termination_message(original_text):
-        assistant_message = Message(
-            chat_session_id=session_id,
-            message_sender_role="assistant",
-            content="Understood. I will generate the case note from the information provided.",
-            detected_language="en",
-        )
-
-        db.add(assistant_message)
-        db.commit()
-        db.refresh(assistant_message)
-
         return ChatReply(
             chat_session_id=session_id,
             user_message=user_message,
