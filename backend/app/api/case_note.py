@@ -1,4 +1,4 @@
-from backend.app.services.email_module import send_case_note_notification_email
+from app.services.email_module import send_case_note_notification_email
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from datetime import datetime, date, time
