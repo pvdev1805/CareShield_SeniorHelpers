@@ -7,6 +7,7 @@ import ChatMessages from '~/components/chats/ChatMessages'
 import type { ChatMessage } from '~/types/chat'
 import { getMessages, sendMessage, generateCaseNote, API_BASE_URL, getCaseNoteBySession } from '~/lib/api'
 import type { CaseNote, CaseNoteMetadata } from '~/types/case-note'
+import { toast } from 'react-toastify'
 
 const buildIncidentSummary = (caseNote: CaseNote) => {
   const metadata = caseNote.metadata_json ?? ({} as CaseNoteMetadata)
@@ -154,6 +155,13 @@ const SessionDetailPage = () => {
             },
             createCaseNoteCardMessage(caseNote)
           ])
+
+          toast.success(
+            <div>
+              <div>Case note generated successfully!</div>
+              <div>A notification email has been sent to the care partner.</div>
+            </div>
+          )
         } catch (error) {
           console.error('Error generating case note:', error)
           setMessages((prev) => [
@@ -164,6 +172,7 @@ const SessionDetailPage = () => {
               text: 'There was an error generating the case note. Please try again.'
             }
           ])
+          toast.error('Failed to generate case note.')
         } finally {
           setIsGeneratingNote(false)
           setIsAwaitingResponse(false)
@@ -253,10 +262,18 @@ const SessionDetailPage = () => {
           createCaseNoteCardMessage(caseNote)
         ])
 
+        toast.success(
+          <div>
+            <div>Case note generated successfully!</div>
+            <div>A notification email has been sent to the care partner.</div>
+          </div>
+        )
+
         setIsGeneratingNote(false)
       }
     } catch (error) {
       console.error('Error uploading audio:', error)
+      toast.error('Failed to upload audio.')
 
       setMessages((msgs) =>
         msgs
