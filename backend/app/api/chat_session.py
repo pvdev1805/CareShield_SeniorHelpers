@@ -108,10 +108,21 @@ def build_chat_reply_from_text(
 
     # If the user explicitly wants to end the case note, do not ask the LLM for more questions.
     if is_termination_message(original_text):
+        assistant_message = Message(
+            chat_session_id=session_id,
+            message_sender_role="assistant",
+            content="Understood. I will generate the case note from the information provided.",
+            detected_language="en",
+        )
+
+        db.add(assistant_message)
+        db.commit()
+        db.refresh(assistant_message)
+
         return ChatReply(
             chat_session_id=session_id,
             user_message=user_message,
-            assistant_message=None,
+            assistant_message=assistant_message,
             note_ready=True,
             missing_slots=[],
         )
@@ -119,7 +130,25 @@ def build_chat_reply_from_text(
     # Generate assistant reply
     assistant_text, case_record = generate_assistant_reply(case_record)
     assistant_message = None
-    note_ready = assistant_text == ""
+
+    user_message_count = (
+        db.query(Message)
+        .filter(
+            Message.chat_session_id == session_id,
+            Message.message_sender_role == "user"
+        )
+        .count()
+    )
+
+    termination_requested = is_termination_message(original_text)
+
+    note_ready = termination_requested or (assistant_text == "" and user_message_count >= 2)
+
+    if not assistant_text and not note_ready:
+        assistant_text = (
+            "Thanks. I have recorded the information provided so far."
+            "Please add any further relevant details, or say 'no further information required' to generate the case note."
+        )
 
     if assistant_text:
         assistant_lang, _ = detect_text_language(assistant_text)
