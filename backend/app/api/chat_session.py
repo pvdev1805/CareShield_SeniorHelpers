@@ -106,6 +106,8 @@ def build_chat_reply_from_text(
     db.commit()
     db.refresh(user_message)
 
+    assistant_message = None
+
     # If the user explicitly wants to end the case note, do not ask the LLM for more questions.
     if is_termination_message(original_text):
         return ChatReply(
@@ -118,7 +120,6 @@ def build_chat_reply_from_text(
 
     # Generate assistant reply
     assistant_text, case_record = generate_assistant_reply(case_record)
-    assistant_message = None
 
     user_message_count = (
         db.query(Message)
@@ -135,7 +136,7 @@ def build_chat_reply_from_text(
 
     if not assistant_text and not note_ready:
         assistant_text = (
-            "Thanks. I have recorded the information provided so far."
+            "Thanks. I have recorded the information provided so far. "
             "Please add any further relevant details, or say 'no further information required' to generate the case note."
         )
 
