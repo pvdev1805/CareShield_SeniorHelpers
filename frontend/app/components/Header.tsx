@@ -1,11 +1,28 @@
+import { FaBars } from 'react-icons/fa'
+import { Link } from 'react-router'
 import avatarImg from '~/assets/images/avatar.png'
 
-const Header = () => {
+type HeaderProps = {
+  onOpenMobileMenu?: () => void
+}
+
+const Header = ({ onOpenMobileMenu }: HeaderProps) => {
   return (
     <header className='flex items-center justify-between px-6 py-2 bg-white border-b border-gray-300 shadow-sm h-14'>
-      {/* Brand name */}
-      <div className='font-bold text-xl text-purple-700'>
-        <a href='/chat'>CareShield</a>
+      <div className='flex items-center gap-4'>
+        {/* Mobile menu button */}
+        <button
+          className='md:hidden p-2 rounded-md hover:bg-gray-200 bg-purple-200 text-(--primary-color) font-bold transition-colors'
+          onClick={onOpenMobileMenu}
+          aria-label='Expand menu'
+        >
+          <FaBars />
+        </button>
+
+        {/* Brand name */}
+        <div className='font-bold text-xl text-purple-700'>
+          <Link to='/chat'>CareShield</Link>
+        </div>
       </div>
 
       <div className='flex items-center gap-4'>
