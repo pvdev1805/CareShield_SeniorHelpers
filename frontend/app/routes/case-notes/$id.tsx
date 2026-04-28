@@ -51,8 +51,8 @@ const CaseNoteDetailPage = () => {
   if (error) {
     return (
       <div className='flex flex-col h-[calc(100vh-56px)] bg-gray-100'>
-        <div className='max-w-4xl mx-auto mt-8 w-full'>
-          <div className='bg-white p-6 rounded-lg shadow border border-red-200 text-red-600'>{error}</div>
+        <div className='max-w-2xl mx-auto mt-8 w-full px-2 sm:px-4 md:px-8'>
+          <div className='bg-white p-4 sm:p-6 rounded-lg shadow border border-red-200 text-red-600'>{error}</div>
         </div>
       </div>
     )
@@ -61,7 +61,7 @@ const CaseNoteDetailPage = () => {
   if (!caseNote) {
     return (
       <div className='flex flex-col h-[calc(100vh-56px)] bg-gray-100'>
-        <div className='max-w-4xl mx-auto mt-8 w-full text-gray-500'>Loading case note...</div>
+        <div className='max-w-2xl mx-auto mt-8 w-full text-gray-500 px-2 sm:px-4 md:px-8'>Loading case note...</div>
       </div>
     )
   }
@@ -70,23 +70,23 @@ const CaseNoteDetailPage = () => {
 
   return (
     <div className='flex flex-col h-[calc(100vh-56px)] bg-gray-100'>
-      <div className='max-w-4xl mx-auto mt-8 w-full space-y-6'>
+      <div className='max-w-2xl mx-auto mt-4 sm:mt-8 w-full space-y-6 px-2 sm:px-4 md:px-8'>
         {/* Header */}
         <div>
-          <h1 className='text-3xl font-bold text-(--primary-color)'>Case Note #{caseNote.id}</h1>
-          <p className='text-sm text-gray-500'>Reported: {formatDateTime(caseNote.reported_timestamp)}</p>
+          <h1 className='text-2xl sm:text-3xl font-bold text-(--primary-color)'>Case Note #{caseNote.id}</h1>
+          <p className='text-xs sm:text-sm text-gray-500'>Reported: {formatDateTime(caseNote.reported_timestamp)}</p>
         </div>
 
         {/* Summary */}
-        <section className='bg-white p-5 rounded-lg shadow transition-all duration-200 border border-transparent'>
-          <h2 className='text-xl font-semibold text-purple-700 mb-2'>Summary</h2>
+        <section className='bg-white p-3 sm:p-5 rounded-lg shadow transition-all duration-200 border border-transparent'>
+          <h2 className='text-lg sm:text-xl font-semibold text-purple-700 mb-2'>Summary</h2>
           <p className='text-gray-800'>{caseNote.summary}</p>
         </section>
 
         {/* Report Details */}
-        <section className='bg-white p-5 rounded-lg shadow transition-all duration-200 border border-transparent'>
+        <section className='bg-white p-3 sm:p-5 rounded-lg shadow transition-all duration-200 border border-transparent'>
           <h2 className='text-xl font-semibold text-purple-700 mb-4'>Report Details</h2>
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-800'>
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-4 text-xs sm:text-sm text-gray-800'>
             <div>
               <span className='font-semibold text-gray-600'>Report Type:</span>{' '}
               {caseNote.metadata_json?.report_type || 'N/A'}
@@ -130,23 +130,23 @@ const CaseNoteDetailPage = () => {
         </section>
 
         {/* Original Text */}
-        <section className='bg-white p-5 rounded-lg shadow transition-all duration-200 border border-transparent'>
-          <h2 className='text-xl font-semibold text-purple-700 mb-2'>Original Text</h2>
+        <section className='bg-white p-3 sm:p-5 rounded-lg shadow transition-all duration-200 border border-transparent'>
+          <h2 className='text-lg sm:text-xl font-semibold text-purple-700 mb-2'>Original Text</h2>
           <p className='whitespace-pre-wrap text-gray-800'>{caseNote.original_text}</p>
         </section>
 
         {/* English Translation */}
         {caseNote.english_translation && (
-          <section className='bg-white p-5 rounded-lg shadow transition-all duration-200 border border-transparent'>
-            <h2 className='text-xl font-semibold text-purple-700 mb-2'>English Translation</h2>
+          <section className='bg-white p-3 sm:p-5 rounded-lg shadow transition-all duration-200 border border-transparent'>
+            <h2 className='text-lg sm:text-xl font-semibold text-purple-700 mb-2'>English Translation</h2>
             <p className='whitespace-pre-wrap text-gray-800'>{caseNote.english_translation}</p>
           </section>
         )}
 
         {/* Conversation Log */}
         {conversationLog && conversationLog.length > 0 && (
-          <section className='bg-white p-5 rounded-lg shadow transition-all duration-200 border border-transparent'>
-            <h2 className='text-xl font-semibold text-purple-700 mb-4'>Conversation Log</h2>
+          <section className='bg-white p-3 sm:p-5 rounded-lg shadow transition-all duration-200 border border-transparent'>
+            <h2 className='text-lg sm:text-xl font-semibold text-purple-700 mb-4'>Conversation Log</h2>
             <div className='space-y-3'>
               {conversationLog.map((entry, index) => (
                 <div key={index} className='border rounded-lg p-4 bg-gray-50 transition-all duration-200'>
