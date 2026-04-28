@@ -17,14 +17,14 @@ const MessageGroup = ({ group }: MessageGroupProps) => {
   const avatarAlt = isUser ? 'User' : 'AI'
 
   return (
-    <div className={`flex flex-col gap-1 ${isUser ? 'items-end' : 'items-start'}`}>
+    <div className={`flex flex-col gap-1 sm:gap-2 ${isUser ? 'items-end' : 'items-start'}`}>
       {group.map((msg, idx) => {
         const isFirst = idx === 0
         return (
           <div key={msg.id} className={`flex ${isUser ? 'justify-end' : 'justify-start'} items-end`}>
             {/* Display avatar for the first message in the group */}
-            {isFirst && !isUser && <Avatar src={avatarSrc} alt={avatarAlt} className='mr-2' />}
-            <div className={isFirst ? '' : isUser ? 'mr-10' : 'ml-10'}>
+            {isFirst && !isUser && <Avatar src={avatarSrc} alt={avatarAlt} className='mr-2 sm:mr-3' />}
+            <div className={isFirst ? '' : isUser ? 'mr-10 sm:mr-12 max-w-[80vw] sm:max-w-md' : 'ml-10 sm:ml-12 max-w-[80vw] sm:max-w-md'}>
               {msg.structuredOutput ? (
                 <IncidentSummaryCard summary={msg.structuredOutput} />
               ) : msg.status ? (
@@ -33,7 +33,7 @@ const MessageGroup = ({ group }: MessageGroupProps) => {
                 <MessageBubble text={msg.text || ''} sender={msg.sender} />
               )}
             </div>
-            {isFirst && isUser && <Avatar src={avatarSrc} alt={avatarAlt} className='ml-2' />}
+            {isFirst && isUser && <Avatar src={avatarSrc} alt={avatarAlt} className='ml-2 sm:ml-3' />}
           </div>
         )
       })}

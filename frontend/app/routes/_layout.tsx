@@ -7,7 +7,7 @@ const Layout = () => {
   const [isMobileOpen, setIsMobileOpen] = useState(false)
 
   return (
-    <main className='flex h-screen bg-gray-100'>
+    <main className='min-h-screen flex h-screen bg-gray-100'>
       <Sidebar isMobileOpen={isMobileOpen} onCloseMobileMenu={() => setIsMobileOpen(false)} />
 
       <div className='flex flex-col flex-1'>

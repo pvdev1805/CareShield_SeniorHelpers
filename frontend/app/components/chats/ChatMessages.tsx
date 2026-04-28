@@ -43,7 +43,7 @@ const ChatMessages = ({ messages }: ChatMessagesProps) => {
   if (currentGroup.length) groups.push(currentGroup)
 
   return (
-    <div className='flex-1 overflow-y-auto px-4 py-2 space-y-3 bg-gray-100'>
+    <div className='flex-1 overflow-y-auto px-2 sm:px-4 py-2 sm:py-3 space-y-2 sm:space-y-3 bg-gray-100'>
       {groups.map((group) => (
         <MessageGroup key={group[0].id} group={group} />
       ))}
@@ -51,7 +51,7 @@ const ChatMessages = ({ messages }: ChatMessagesProps) => {
       {/* Typing Indicator when AI is thinking*/}
       {typingMessage && (
         <div className='flex justify-start'>
-          <div className='bg-gray-200 text-gray-700 rounded-2xl px-4 py-3 max-w-xs'>
+          <div className='bg-gray-200 text-gray-700 rounded-2xl px-4 py-3 max-w-xs sm:max-w-sm md:max-w-md'>
             <div className='flex space-x-1'>
               <span className='w-2 h-2 bg-gray-400 rounded-full animate-bounce' />
               <span className='w-2 h-2 bg-gray-400 rounded-full animate-bounce [animation-delay:150ms]' />

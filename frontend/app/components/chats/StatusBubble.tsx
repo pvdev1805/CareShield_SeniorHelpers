@@ -33,7 +33,9 @@ const statusConfig = {
 const StatusBubble = ({ status }: StatusBubbleProps) => {
   const cfg = statusConfig[status]
   return (
-    <div className={`flex items-center px-4 py-2 rounded-lg ${cfg.className}`}>
+    <div
+      className={`flex items-center px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg ${cfg.className} text-sm sm:text-base max-w-xs sm:max-w-sm wrap-break-word`}
+    >
       {cfg.icon}
       {cfg.text}
     </div>
