@@ -51,19 +51,19 @@ const ChatInput = ({ onSend, onSendAudio, isUploading, isRecording, onRecordingS
       }
     }
 
-  mediaRecorder.onstop = async () => {
-    const audioBlob = new Blob(chunksRef.current, {
-      type: 'audio/webm;codecs=opus'
-    })
+    mediaRecorder.onstop = async () => {
+      const audioBlob = new Blob(chunksRef.current, {
+        type: 'audio/webm;codecs=opus'
+      })
 
-    chunksRef.current = []
+      chunksRef.current = []
 
-    await onSendAudio(audioBlob)
+      await onSendAudio(audioBlob)
+    }
+
+    mediaRecorder.start()
+    onRecordingStateChange(true)
   }
-
-  mediaRecorder.start()
-  onRecordingStateChange(true)
-}
 
   // Stop recording
   const stopRecording = () => {
@@ -72,12 +72,15 @@ const ChatInput = ({ onSend, onSendAudio, isUploading, isRecording, onRecordingS
   }
 
   return (
-    <form className='flex items-center gap-2 px-4 py-3 border-t bg-white relative' onSubmit={handleSend}>
+    <form
+      className='flex items-center gap-2 px-2 sm:px-4 py-2 sm:py-3 border-t bg-white relative'
+      onSubmit={handleSend}
+    >
       {/* Voice button - left */}
       <button
         type='button'
         onClick={isRecording ? stopRecording : startRecording}
-        className={`absolute left-6 p-2 rounded-full ${
+        className={`absolute left-3 sm:left-6 p-2 sm:p-3 rounded-full ${
           isRecording ? 'bg-red-100' : 'bg-gray-100'
         } hover:bg-purple-200 transition-colors`}
         aria-label={isRecording ? 'Stop recording' : 'Start voice input'}
@@ -85,15 +88,15 @@ const ChatInput = ({ onSend, onSendAudio, isUploading, isRecording, onRecordingS
         disabled={isUploading}
       >
         {isRecording ? (
-          <FaStop className='w-5 h-5 text-red-600' />
+          <FaStop className='w-5 h-5 sm:w-6 sm:h-6 text-red-600' />
         ) : (
-          <FaMicrophone className='w-5 h-5 text-purple-700' />
+          <FaMicrophone className='w-5 h-5 sm:w-6 sm:h-6 text-purple-700' />
         )}
       </button>
 
       {/* Input - center */}
       <input
-        className='flex-1 border rounded-full px-12 py-3 focus:outline-none bg-gray-50 text-gray-900 placeholder-gray-400'
+        className='flex-1 border rounded-full px-12 py-2 sm:py-3 focus:outline-none bg-gray-50 text-gray-900 placeholder-gray-400 text-sm sm:text-base'
         placeholder={
           isRecording
             ? 'Recording...'
@@ -111,15 +114,17 @@ const ChatInput = ({ onSend, onSendAudio, isUploading, isRecording, onRecordingS
       {/* Send button - right */}
       <button
         type='submit'
-        className='absolute right-6 bg-purple-700 text-white p-2 rounded-full flex items-center justify-center transition-colors'
+        className='absolute right-3 sm:right-6 bg-purple-700 text-white p-2 sm:p-3 rounded-full flex items-center justify-center transition-colors'
         aria-label='Send message'
         style={{ zIndex: 2 }}
         disabled={isRecording || isUploading || !value.trim()}
       >
         {isUploading ? (
-          <FaSpinner className='w-5 h-5 animate-spin' />
+          <FaSpinner className='w-5 h-5 sm:w-6 sm:h-6 animate-spin' />
         ) : (
-          <FaPaperPlane className={`w-5 h-5 ${isRecording || isUploading || !value.trim() ? 'opacity-50' : ''}`} />
+          <FaPaperPlane
+            className={`w-5 h-5 sm:w-6 sm:h-6 ${isRecording || isUploading || !value.trim() ? 'opacity-50' : ''}`}
+          />
         )}
       </button>
     </form>
