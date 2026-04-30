@@ -141,6 +141,7 @@ Important rules:
 - Return ONLY valid JSON.
 - Do not include markdown, explanations, or extra text.
 - If a field is not available, use null.
+- If a user mentions an injury or incident occured, you should ask them to specify the time.
 - If the user says "today", convert it to the current date.
 - If the user gives approximate time such as "around 3 PM", "approximately 10 AM", or "about 2 PM", extract it as a valid time.
 - Use 24-hour format for incident_time, for example "14:30" or "10:00".
